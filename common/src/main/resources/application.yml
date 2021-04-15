@@ -1,0 +1,29 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: comment_service
+  datasource:
+    url: jdbc:mysql://114.116.234.68:3306/lfm?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true&useSSL=false
+    username: lfm
+    password: 123456
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    timeout: 10000
+    host: 47.119.126.86
+    database: 0
+    port: 6379
+    password:
+    lettuce:
+      pool:
+        max-active: 512
+        max-wait: -1
+        max-idle: 100
+        min-idle: 0
+mybatis:
+  mapperLocations: classpath:mapper/*Mapper.xml
+  configuration:
+    map-underscore-to-camel-case: true

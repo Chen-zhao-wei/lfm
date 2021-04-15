@@ -75,33 +75,33 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.4.3</version>
 
-                <configuration>
+<!--                <configuration>-->
 
-                    <compilerArgs>
+<!--                    <compilerArgs>-->
 
-                        <!-- 过期的方法的警告-->
+<!--                        &lt;!&ndash; 过期的方法的警告&ndash;&gt;-->
 
-                        <arg>-Xlint:deprecation</arg>
+<!--                        <arg>-Xlint:deprecation</arg>-->
 
-                    </compilerArgs>
+<!--                    </compilerArgs>-->
 
-                    <compilerArguments>
+<!--                    <compilerArguments>-->
 
-                        <!-- 是否输出所有的编译信息（包括类的加载等）-->
+<!--                        &lt;!&ndash; 是否输出所有的编译信息（包括类的加载等）&ndash;&gt;-->
 
-                        <!--<verbose />-->
+<!--                        &lt;!&ndash;<verbose />&ndash;&gt;-->
 
-                        <!-- 解决maven命令编译报错，因为rt.jar 和jce.jar在jre的lib下面，不在jdk的lib下面，
+<!--                        &lt;!&ndash; 解决maven命令编译报错，因为rt.jar 和jce.jar在jre的lib下面，不在jdk的lib下面，-->
 
-                        导致maven找不到（java7以后会出现这个问题），将这2个jar包拷贝到jdk的lib下面估计也好使-->
+<!--                        导致maven找不到（java7以后会出现这个问题），将这2个jar包拷贝到jdk的lib下面估计也好使&ndash;&gt;-->
 
-                        <bootclasspath>${java.home}\lib
-                            t.jar;${java.home}\lib\jce.jar
-                        </bootclasspath>
+<!--                        <bootclasspath>${java.home}\lib-->
+<!--                            t.jar;${java.home}\lib\jce.jar-->
+<!--                        </bootclasspath>-->
 
-                    </compilerArguments>
+<!--                    </compilerArguments>-->
 
-                </configuration>
+<!--                </configuration>-->
 
             </plugin>
         </plugins>

@@ -1,6 +1,6 @@
 package com.example.lfm.Interceptor;
 
-import com.example.lfm.service.Impl.RedisCache;
+import com.example.lfm.utils.RedisCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

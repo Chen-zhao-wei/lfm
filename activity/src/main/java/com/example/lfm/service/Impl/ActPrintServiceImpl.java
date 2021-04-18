@@ -9,6 +9,7 @@ import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.example.lfm.dao.ActPrintMapper;
 import com.example.lfm.dao.SysStudentMapper;
 import com.example.lfm.entity.ActPrint;
+import com.example.lfm.entity.DshOrder;
 import com.example.lfm.service.ActPrintService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class ActPrintServiceImpl implements ActPrintService {
     private ActPrintMapper printMapper;
     @Autowired
     private SysStudentMapper studentMapper;
+
+    @Autowired
+    private DelayService delayService;
     /**
      * APP_ID 应用id
      */
@@ -61,8 +65,11 @@ public class ActPrintServiceImpl implements ActPrintService {
         }
         print.setStatus("0");
         if(printMapper.insert(print)==1){
+            // 添加成功后，创建一个1小时之内没有付款就自动取消订单的定时器
+            DshOrder dshOrder = new DshOrder("R"+print.getPrintId(),30 * 60 * 1000,1);
+            delayService.add(dshOrder);
             return ReturnMessageUtil.sucess();
-        }else
+        }
         return ReturnMessageUtil.error(0, "下单失败！");
     }
 
@@ -101,6 +108,11 @@ public class ActPrintServiceImpl implements ActPrintService {
             return ReturnMessageUtil.error(0, "订单不存在！");
         }
         return ReturnMessageUtil.sucess();
+    }
+
+    @Override
+    public ActPrint getActPrintById(Long printId) {
+        return printMapper.selectByPrimaryKey(printId);
     }
 
     @Override

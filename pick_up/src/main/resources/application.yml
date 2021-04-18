@@ -1,3 +1,7 @@
+lfm:
+  host: 47.119.126.86
+  post: 8888
+
 server:
   port: 8084
 spring:
@@ -28,3 +32,12 @@ mybatis:
   configuration:
 
     map-underscore-to-camel-case: true
+
+fdfs:
+  so-timeout: 6000 # 超时时间
+  connect-timeout: 6000 # 连接超时时间
+  thumb-image: # 缩略图
+    width: 60
+    height: 60
+  tracker-list: # tracker地址：你的虚拟机服务器地址+端口（默认是22122）
+  - 47.119.126.86:22122

@@ -1,4 +1,4 @@
-package com.example.lfm.service.Impl;
+package com.example.lfm.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
@@ -188,6 +188,10 @@ public class RedisCache
     public <T> void setCacheMapValue(final String key, final String hKey, final T value)
     {
         redisTemplate.opsForHash().put(key, hKey, value);
+    }
+
+    public void removeCacheMapValue(String key,String fields) {
+        redisTemplate.opsForHash().delete(key,fields);
     }
 
     /**

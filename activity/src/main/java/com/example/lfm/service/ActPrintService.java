@@ -20,5 +20,7 @@ public interface ActPrintService {
      */
     ReturnMessage<Object> SelectByKey(Long printId);
 
+    ActPrint getActPrintById(Long printId);
+
     ReturnMessage<Object> getOrderInfo(Long orderId);
 }

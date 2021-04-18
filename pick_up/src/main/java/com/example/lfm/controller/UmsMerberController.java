@@ -2,7 +2,7 @@ package com.example.lfm.controller;
 
 import com.example.lfm.entity.SysStudent;
 import com.example.lfm.pojo.phoneCode;
-import com.example.lfm.service.Impl.RedisCache;
+import com.example.lfm.utils.RedisCache;
 import com.example.lfm.service.UserMerberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

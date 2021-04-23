@@ -8,7 +8,7 @@ public interface AddressService {
     /**
      * 存储地址
      */
-    ReturnMessage<Object> inputaddress(SysAddress address);
+    ReturnMessage<Object> inputaddress(SysAddress address,HttpServletRequest request);
 
     /**
      * 删除地址
@@ -18,7 +18,7 @@ public interface AddressService {
     /**
      * 编辑地址
      */
-    ReturnMessage<Object> updateaddress(SysAddress address);
+    ReturnMessage<Object> updateaddress(SysAddress address,HttpServletRequest request);
 
     /**
      * 选择地址

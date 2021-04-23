@@ -1,5 +1,6 @@
 package com.example.lfm.controller;
 
+import com.alipay.api.AlipayApiException;
 import com.example.lfm.entity.ActPrint;
 import com.example.lfm.entity.File;
 import com.example.lfm.service.ActPrintService;
@@ -44,19 +45,54 @@ public class PrintController {
         return printService.orderList(studentId, status);
     }
 
+    /**
+     * 获取订单信息
+     */
     @ApiOperation("查看具体订单 ")
     @PostMapping("/SelectByKey/{printId}")
     public ReturnMessage<Object> SelectByKey(@PathVariable() Long printId) {
         return printService.SelectByKey(printId);
     }
 
-    /**
-     * 获取订单信息
-     */
+
     @ApiOperation("手机支付 ")
     @GetMapping("/getOrderInfo")
     public ReturnMessage<Object> getOrderInfo(Long printId) {
         return printService.getOrderInfo(printId);
+    }
+
+    /**
+     * 支付完成回调验证操作
+     * @param response，request
+     * @throws Exception
+     * @return void
+     * @author 有梦想一起实现
+     */
+    @RequestMapping("notify_url")
+    public void Notify(HttpServletResponse response, HttpServletRequest request) throws Exception {
+        System.out.println("----------------------------notify_url------------------------");
+        // 商户订单号
+        String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"), "GBK");
+        // 付款金额
+        String total_amount = new String(request.getParameter("total_amount").getBytes("ISO-8859-1"), "GBK");
+        // 支付宝交易号
+        String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"), "GBK");
+        // 交易说明
+        String cus = new String(request.getParameter("body").getBytes("ISO-8859-1"), "GBK");
+        // 交易状态
+        String trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"), "GBK");
+        if (trade_status.equals("TRADE_SUCCESS")) {//支付成功商家操作
+
+        }
+    }
+
+    /**
+     *退款
+     */
+    @ApiOperation("退款 ")
+    @GetMapping("/refund")
+    public ReturnMessage<Object> refund(Long printId) throws IOException, AlipayApiException {
+        return printService.refund(printId);
     }
 
     /**
@@ -75,7 +111,7 @@ public class PrintController {
     }
 
     /**
-     * 上传文件接口
+     * 下载文件接口
      */
     @ApiOperation("下载文件 ")
     @GetMapping(value = "/download")

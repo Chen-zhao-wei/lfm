@@ -28,7 +28,15 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
-    public ReturnMessage<Object> inputaddress(SysAddress address) {
+    public ReturnMessage<Object> inputaddress(SysAddress address,HttpServletRequest request) {
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        String studentName= JwtTokenUtils.getStudentName(token);
+        SysStudent student=studentMapper.selectByName(studentName);
+        Long studentid=student.getStudentId();
+        address.setStudentId(studentid);
         if(StringUtils.isEmpty(address.getStudentId())||StringUtils.isEmpty(address.getStudentId())|| StringUtils.isEmpty(address.getAddress())||StringUtils.isEmpty(address.getTakeName())||StringUtils.isEmpty(address.getTakeNumber())||StringUtils.isEmpty(address.getDefaultFlag())){
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
@@ -47,7 +55,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public ReturnMessage<Object> delddress(Long addressId) {
-        if(StringUtils.isEmpty(addressId)||addressMapper.selectByPrimaryKey(addressId)!=null){
+        if(StringUtils.isEmpty(addressId)||addressMapper.selectByPrimaryKey(addressId)==null){
             return ReturnMessageUtil.error(0,"该地址信息不存在！");
         }
         if(addressMapper.deleteByPrimaryKey(addressId)==1){
@@ -57,7 +65,15 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public ReturnMessage<Object> updateaddress(SysAddress address) {
+    public ReturnMessage<Object> updateaddress(SysAddress address,HttpServletRequest request) {
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        String studentName= JwtTokenUtils.getStudentName(token);
+        SysStudent student=studentMapper.selectByName(studentName);
+        Long studentid=student.getStudentId();
+        address.setStudentId(studentid);
         if(StringUtils.isEmpty(address.getStudentId())||StringUtils.isEmpty(address.getStudentId())|| StringUtils.isEmpty(address.getAddress())||StringUtils.isEmpty(address.getTakeName())||StringUtils.isEmpty(address.getTakeNumber())){
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
@@ -82,11 +98,10 @@ public class AddressServiceImpl implements AddressService {
         }
         String studentName= JwtTokenUtils.getStudentName(token);
         SysStudent student=studentMapper.selectByName(studentName);
-        Long studentid=student.getStudentId();
-        if(StringUtils.isEmpty(addressMapper.selectByStudentid(studentid))){
+        if(StringUtils.isEmpty(addressMapper.selectByStudentid(student.getStudentId()))){
             return ReturnMessageUtil.error(0, "暂无地址！");
         }
-        return ReturnMessageUtil.sucess(addressMapper.selectByStudentid(studentid));
+        return ReturnMessageUtil.sucess(addressMapper.selectByStudentid(student.getStudentId()));
     }
 
     @Override

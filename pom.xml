@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>feedback</module>
-        <module>print</module>
+        <module>activity</module>
         <module>washing</module>
         <module>pick_up</module>
         <module>common</module>

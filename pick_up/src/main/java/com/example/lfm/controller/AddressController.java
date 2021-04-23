@@ -20,13 +20,13 @@ public class AddressController {
     private AddressService addressService;
 
     @PostMapping("/InsertAd")
-    public ReturnMessage<Object> InsertAd(@RequestBody SysAddress address){
-        return addressService.inputaddress(address);
+    public ReturnMessage<Object> InsertAd(@RequestBody SysAddress address,HttpServletRequest request){
+        return addressService.inputaddress(address,request);
     }
 
     @PostMapping("/EditAd")
-    public ReturnMessage<Object> EditAd(@RequestBody SysAddress address){
-        return addressService.updateaddress(address);
+    public ReturnMessage<Object> EditAd(@RequestBody SysAddress address,HttpServletRequest request){
+        return addressService.updateaddress(address,request);
     }
 
     @PostMapping("/DelAd/{aId}")

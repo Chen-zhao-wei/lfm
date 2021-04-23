@@ -17,7 +17,7 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <artifactId>print</artifactId>
+            <artifactId>activity</artifactId>
             <groupId>com.example</groupId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

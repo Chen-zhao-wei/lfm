@@ -1,9 +1,12 @@
 package com.example.lfm.controller;
 
+import com.example.lfm.entity.File;
 import com.example.lfm.entity.SysStudent;
 import com.example.lfm.pojo.phoneCode;
+import com.example.lfm.utils.FastDFSUtils;
 import com.example.lfm.utils.RedisCache;
 import com.example.lfm.service.UserMerberService;
+import com.example.lfm.utils.ReturnMessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -11,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.lfm.utils.ReturnMessage;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 
 @RestController
@@ -32,6 +37,9 @@ public class UmsMerberController {
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private FastDFSUtils fastDFSUtils;
     /**
      * 用户注册
      * 通过用户名密码注册
@@ -92,6 +100,21 @@ public class UmsMerberController {
     @ResponseBody
     public ReturnMessage<Object> getSchool() {
         return memberService.getSchool();
+    }
+
+    /**
+     * 上传文件接口
+     */
+    @ApiOperation("头像上传 ")
+    @PostMapping("/uploadAvatar")
+    public ReturnMessage<Object> uploadAvatar(@RequestParam("file") MultipartFile file) throws IOException
+    {
+        if (!file.isEmpty())
+        {
+            String fileUrl  = fastDFSUtils.uploadAvatar(file);
+            return ReturnMessageUtil.sucess(fileUrl);
+        }
+        return ReturnMessageUtil.error(0,"文件不存在");
     }
 }
 

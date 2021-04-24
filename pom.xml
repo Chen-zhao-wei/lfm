@@ -109,8 +109,29 @@
             <artifactId>fastdfs-client</artifactId>
             <version>1.26.1-RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aspose</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>19.12</version>
+            <classifier>jdk18</classifier>
+        </dependency>
     </dependencies>
 
-
-
+    <repositories>
+        <repository>
+            <id>AsposeJavaAPI</id>
+            <name>Aspose Java API</name>
+            <url>http://repository.aspose.com/repo/</url>
+        </repository>
+    </repositories>
 </project>

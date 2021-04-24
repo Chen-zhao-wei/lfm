@@ -6,6 +6,7 @@ import com.example.lfm.entity.File;
 import com.example.lfm.service.ActPrintService;
 import com.example.lfm.utils.FastDFSUtils;
 import com.example.lfm.utils.ReturnMessageUtil;
+import com.example.lfm.utils.SbException;
 import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -103,10 +104,10 @@ public class PrintController {
     {
         if (!file.isEmpty())
         {
-            File file1 = fastDFSUtils.upload(file);
+            File file1  = fastDFSUtils.uploadPrint(file);
             return ReturnMessageUtil.sucess(file1);
         }
-        return ReturnMessageUtil.error(0,"订单不存在");
+        return ReturnMessageUtil.error(0,"文件不存在");
     }
 
     /**

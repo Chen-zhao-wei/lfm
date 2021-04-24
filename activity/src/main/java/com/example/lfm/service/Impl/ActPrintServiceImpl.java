@@ -60,9 +60,7 @@ public class ActPrintServiceImpl implements ActPrintService {
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent student=studentMapper.selectByName(studentName);
-        Long studentId=student.getStudentId();
+        Long studentId= JwtTokenUtils.getStudentId(token);
         if(StringUtils.isEmpty(studentId)||StringUtils.isEmpty(StringUtils.isEmpty(studentMapper.selectByPrimaryKey(studentId)))){
             return ReturnMessageUtil.error(0, "学生不存在！");
         }

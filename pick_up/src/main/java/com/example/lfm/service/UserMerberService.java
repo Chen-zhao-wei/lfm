@@ -17,7 +17,9 @@ public interface UserMerberService {
 
      ReturnMessage<Object> login(SysStudent student);
 
-     ReturnMessage<Object> update(SysStudent student);
+     ReturnMessage<Object> update(SysStudent student,HttpServletRequest request);
+
+     ReturnMessage<Object> updatePassword(String password,HttpServletRequest request);
 
      ReturnMessage<Object> selectBykey(HttpServletRequest request);
 

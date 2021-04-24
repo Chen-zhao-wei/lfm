@@ -34,10 +34,8 @@ public class AddressServiceImpl implements AddressService {
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent student=studentMapper.selectByName(studentName);
-        Long studentid=student.getStudentId();
-        address.setStudentId(studentid);
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        address.setStudentId(studentId);
         if(StringUtils.isEmpty(address.getStudentId())||StringUtils.isEmpty(address.getStudentId())|| StringUtils.isEmpty(address.getAddress())||StringUtils.isEmpty(address.getTakeName())||StringUtils.isEmpty(address.getTakeNumber())||StringUtils.isEmpty(address.getDefaultFlag())){
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
@@ -48,7 +46,6 @@ public class AddressServiceImpl implements AddressService {
                 addressMapper.updateByPrimaryKey(address1);
             }
         }
-
         if(addressMapper.insert(address)==1){
             return ReturnMessageUtil.sucess();
         }else   return ReturnMessageUtil.error(0,"添加失败！");
@@ -71,10 +68,8 @@ public class AddressServiceImpl implements AddressService {
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent student=studentMapper.selectByName(studentName);
-        Long studentid=student.getStudentId();
-        address.setStudentId(studentid);
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        address.setStudentId(studentId);
         if(StringUtils.isEmpty(address.getStudentId())||StringUtils.isEmpty(address.getStudentId())|| StringUtils.isEmpty(address.getAddress())||StringUtils.isEmpty(address.getTakeName())||StringUtils.isEmpty(address.getTakeNumber())){
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
@@ -97,8 +92,8 @@ public class AddressServiceImpl implements AddressService {
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent student=studentMapper.selectByName(studentName);
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        SysStudent student=this.studentMapper.selectByPrimaryKey(studentId);
         if(StringUtils.isEmpty(addressMapper.selectByStudentid(student.getStudentId()))){
             return ReturnMessageUtil.error(0, "暂无地址！");
         }
@@ -111,9 +106,7 @@ public class AddressServiceImpl implements AddressService {
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent student =studentMapper.selectByName(studentName);
-        Long studentId=student.getStudentId();
+        Long studentId= JwtTokenUtils.getStudentId(token);
         if(addressMapper.SelBydefault(studentId,"0")!=null){
             return ReturnMessageUtil.sucess(addressMapper.SelBydefault(studentId,"0"));
         }else
@@ -131,11 +124,9 @@ public class AddressServiceImpl implements AddressService {
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent student=studentMapper.selectByName(studentName);
-        Long studentid=student.getStudentId();
-        if(!StringUtils.isEmpty(addressMapper.SelBydefault(studentid,"0"))){
-            SysAddress address1=addressMapper.SelBydefault(studentid,"0");
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        if(!StringUtils.isEmpty(addressMapper.SelBydefault(studentId,"0"))){
+            SysAddress address1=addressMapper.SelBydefault(studentId,"0");
             address1.setDefaultFlag("1");
             addressMapper.updateByPrimaryKey(address1);
         }

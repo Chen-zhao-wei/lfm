@@ -37,9 +37,9 @@ public class JwtTokenUtils {
      * <p>
      * JWT构成: header, payload, signature
      *
-     * @param studentName 登录成功后用户user_id, 参数user_id不可传空
+     * @param studentId 登录成功后用户user_id, 参数user_id不可传空
      */
-    public static String createToken(String studentName) throws Exception {
+    public static String createToken(Long studentId) throws Exception {
         Date iatDate = new Date();
         // expire time
         Calendar nowTime = Calendar.getInstance();
@@ -55,7 +55,7 @@ public class JwtTokenUtils {
         // param backups {iss:Service, aud:APP}
         String token = JWT.create().withHeader(map) // header
                 .withClaim("iss", "Service") // payload
-                .withClaim("aud", "APP").withClaim("studentName", null == studentName ? null : studentName)
+                .withClaim("aud", "APP").withClaim("studentId", null == studentId ? null : studentId)
                 .withIssuedAt(iatDate) // sign time
                 .withExpiresAt(expiresDate) // expire time
                 .sign(Algorithm.HMAC256(SECRET)); // signature
@@ -78,6 +78,7 @@ public class JwtTokenUtils {
         } catch (Exception e) {
             // e.printStackTrace();
             // token 校验失败, 抛出Token验证非法异常
+            throw new SbException(0,"token校验失败");
         }
         return jwt.getClaims();
     }
@@ -88,13 +89,14 @@ public class JwtTokenUtils {
      * @param token
      * @return user_id
      */
-    public static String getStudentName(String token) {
+    public static Long getStudentId(String token) {
         Map<String, Claim> claims = verifyToken(token);
-        Claim claim = claims.get("studentName");
-        if (null == claim || StringUtils.isEmpty(claim.asString())) {
+        Claim claim = claims.get("studentId");
+        if (null == claim) {
             // token 校验失败, 抛出Token验证非法异常
+            throw new SbException(0,"token校验失败");
         }
-        return claim.asString();
+        return claim.asLong();
     }
 
 }

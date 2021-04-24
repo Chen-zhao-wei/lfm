@@ -90,7 +90,6 @@ public class UserMerberServiceImpl implements UserMerberService {
         if(!redisCache.getCacheObject(telephone).equals(authCode)){
             return ReturnMessageUtil.error(0, "验证码与手机号不匹配！");
         }
-
         Long expire = stringRedisTemplate.getExpire(telephone);
         logger.info(expire+"++++++++++=======");
         if(expire <= 0){
@@ -119,14 +118,14 @@ public class UserMerberServiceImpl implements UserMerberService {
         TokenUtil tokenUtil=new TokenUtil();
         String token = null;
         try {
-            token = JwtTokenUtils.createToken(name);
+            token = JwtTokenUtils.createToken(student.getStudentId());
         } catch (Exception e) {
             e.printStackTrace();
         }
         logger.info(token+"token");
         if (token != null) {
-            redisCache.setCacheObject(name,token);
-            redisCache.expire(name,60000);
+            redisCache.setCacheObject(""+student.getStudentId(),token);
+            redisCache.expire(""+student.getStudentId(),60000);
             return ReturnMessageUtil.sucess(token);
         } else {
             return ReturnMessageUtil.error(0, "获取token失败！");
@@ -148,14 +147,14 @@ public class UserMerberServiceImpl implements UserMerberService {
         SysStudent student1=studentMapper.selectByName(student.getStudentName());
         String token = null;
         try {
-            token = JwtTokenUtils.createToken(student.getStudentName());
+            token = JwtTokenUtils.createToken(student.getStudentId());
         } catch (Exception e) {
             e.printStackTrace();
         }
         if (token != null) {
 
-            redisCache.setCacheObject(student1.getStudentName(),token);
-            redisCache.expire(student1.getStudentName(),60000);
+            redisCache.setCacheObject(""+student1.getStudentId(),token);
+            redisCache.expire(""+student1.getStudentId(),60000);
             return ReturnMessageUtil.sucess(token);
         } else {
             throw new SbException(100, "获取token失败！");
@@ -178,12 +177,12 @@ public class UserMerberServiceImpl implements UserMerberService {
 
         String token = null;
         try {
-            token = JwtTokenUtils.createToken(student1.getStudentName());
+            token = JwtTokenUtils.createToken(student1.getStudentId());
         } catch (Exception e) {
             e.printStackTrace();
         }
         if (token != null) {
-            redisCache.setCacheObject(student1.getStudentName(),token,30,TimeUnit.MINUTES);
+            redisCache.setCacheObject(""+student1.getStudentId(),token,30,TimeUnit.MINUTES);
             logger.info(stringRedisTemplate.getExpire(student1.getStudentName())+"=============");
             return ReturnMessageUtil.sucess(token);
         } else {
@@ -192,8 +191,8 @@ public class UserMerberServiceImpl implements UserMerberService {
     }
 
     @Override
-    public ReturnMessage<Object> update(SysStudent student) {
-        if(student==null||student.getStudentName()==null||student.getPassword()==null||student.getPhoneNumber()==null){
+    public ReturnMessage<Object> update(SysStudent student,HttpServletRequest request) {
+        if(student==null||student.getStudentName()==null||student.getPhoneNumber()==null){
         //关键数据不可为空
             logger.info(student+"========");
             return ReturnMessageUtil.error(0, "必填项不可为空！");
@@ -201,17 +200,23 @@ public class UserMerberServiceImpl implements UserMerberService {
         //修改的用户名必须保持唯一：
         // 1.用户名是否有改动
         // 2.改动之后数据库中是否已经存在
-        if(!student.getStudentName().equals(studentMapper.selectByPrimaryKey(student.getStudentId()).getStudentName())&&studentMapper.selectByName(student.getStudentName())!=null){
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        SysStudent sysStudent=this.studentMapper.selectByPrimaryKey(studentId);
+        if(!student.getStudentName().equals(sysStudent.getStudentName())&&studentMapper.selectByName(student.getStudentName())!=null){
             logger.info(student+"=========");
             return ReturnMessageUtil.error(0, "用户名已存在！");
         }
-
         String expression = "((^((0\\d{2,3})-)(\\d{7,8})(-(\\d{3,}))?$)|(^((13[0-9])|(15[^4,\\D])|(18[0-9])|(14[5,7])|(17[0,1,3,5-8]))\\d{8}$))";
         Pattern pattern = Pattern.compile(expression);
         Matcher matcher = pattern.matcher(student.getPhoneNumber());
         if (!matcher.matches()){
             return ReturnMessageUtil.error(0, "手机号格式不正确！");
         }
+        student.setStudentId(studentId);
         if(studentMapper.updateByPrimaryKey(student)==1){
             return ReturnMessageUtil.sucess();
         }
@@ -220,13 +225,29 @@ public class UserMerberServiceImpl implements UserMerberService {
     }
 
     @Override
+    public ReturnMessage<Object> updatePassword(String password,HttpServletRequest request) {
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        SysStudent sysStudent=this.studentMapper.selectByPrimaryKey(studentId);
+        sysStudent.setPassword(password);
+        if(studentMapper.updateByPrimaryKey(sysStudent)==1){
+            return ReturnMessageUtil.sucess();
+        }
+        else
+            return ReturnMessageUtil.error(0, "更新失败！");
+    }
+
+    @Override
     public ReturnMessage<Object> selectBykey(HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
-        SysStudent sysStudent=this.studentMapper.selectByName(studentName);
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        SysStudent sysStudent=this.studentMapper.selectByPrimaryKey(studentId);
         if (StringUtils.isEmpty(sysStudent)) {
             return ReturnMessageUtil.error(0, "该用户不存在");
         }

@@ -1,5 +1,6 @@
 package com.example.lfm.Interceptor;
 
+import com.example.lfm.entity.SysStudent;
 import com.example.lfm.utils.RedisCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,26 +53,26 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if(token==null){
             return false;
         }
-        String studentName= JwtTokenUtils.getStudentName(token);
+        Long studentId= JwtTokenUtils.getStudentId(token);
         if (null == token){
             log.error("##########当前用户未登录");
             return false;
         }
-        if( StringUtils.isEmpty(redisCache.getCacheObject(studentName))){
-            log.error("##########当前用户token在redis中不存在,studentName:{}",studentName);
+        if( StringUtils.isEmpty(redisCache.getCacheObject(""+studentId))){
+            log.error("##########当前用户token在redis中不存在,studentId:{}",studentId);
             return false;
         }
 
-        Long expire = stringRedisTemplate.getExpire(studentName);
-        log.info(studentName+"=======");
+        Long expire = stringRedisTemplate.getExpire(""+studentId);
+        log.info(studentId+"=======");
         log.info(expire+"++++++++++=======");
         if(expire <= 0){
-            log.error("##########当前用户token已失效,studentName:{}",studentName);
+            log.error("##########当前用户token已失效,studentId:{}",studentId);
             return false;
         }
 
         //为当前登录用户重置登录活性
-        redisCache.setCacheObject(studentName,token,30,TimeUnit.MINUTES);
+        redisCache.setCacheObject(""+studentId,token,30,TimeUnit.MINUTES);
 
         return true;
     }

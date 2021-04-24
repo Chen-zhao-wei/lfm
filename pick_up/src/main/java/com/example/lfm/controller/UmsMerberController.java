@@ -83,9 +83,17 @@ public class UmsMerberController {
     @ApiOperation("修改个人信息")
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
-    public ReturnMessage<Object> update(@RequestBody SysStudent student) {
+    public ReturnMessage<Object> update(@RequestBody SysStudent student,HttpServletRequest request) {
 
-        return memberService.update(student);
+        return memberService.update(student,request);
+    }
+
+
+    @ApiOperation("修改密码信息")
+    @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
+    @ResponseBody
+    public ReturnMessage<Object> updatePassword(@RequestBody String password,HttpServletRequest request) {
+        return memberService.updatePassword(password,request);
     }
 
     @ApiOperation("获取个人信息")

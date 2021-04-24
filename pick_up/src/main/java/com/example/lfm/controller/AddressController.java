@@ -44,6 +44,11 @@ public class AddressController {
         return addressService.selectBystudentid(request);
     }
 
+    @PostMapping("/Changedefault/{aId}")
+    public ReturnMessage<Object> Changedefault(@PathVariable()Long aId,HttpServletRequest request){
+        return addressService.changedefault(aId,request);
+    }
+
     @GetMapping("/SelBydefault")
     public ReturnMessage<Object> SelBydefault(HttpServletRequest request){
         return addressService.SelBydefault(request);

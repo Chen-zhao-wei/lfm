@@ -12,13 +12,16 @@ import com.example.lfm.dao.ActPrintMapper;
 import com.example.lfm.dao.SysStudentMapper;
 import com.example.lfm.entity.ActPrint;
 import com.example.lfm.entity.DshOrder;
+import com.example.lfm.entity.SysStudent;
 import com.example.lfm.service.ActPrintService;
+import com.example.lfm.utils.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import com.example.lfm.utils.ReturnMessage;
 import com.example.lfm.utils.ReturnMessageUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -52,7 +55,14 @@ public class ActPrintServiceImpl implements ActPrintService {
 
 
     @Override
-    public ReturnMessage<Object> orderList(Long studentId,String status) {
+    public ReturnMessage<Object> orderList(String status, HttpServletRequest request) {
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        String studentName= JwtTokenUtils.getStudentName(token);
+        SysStudent student=studentMapper.selectByName(studentName);
+        Long studentId=student.getStudentId();
         if(StringUtils.isEmpty(studentId)||StringUtils.isEmpty(StringUtils.isEmpty(studentMapper.selectByPrimaryKey(studentId)))){
             return ReturnMessageUtil.error(0, "学生不存在！");
         }
@@ -82,11 +92,12 @@ public class ActPrintServiceImpl implements ActPrintService {
 
 
     @Override
-    public ReturnMessage<Object> SelectByKey(Long printId) {
-        if(StringUtils.isEmpty(printId)||StringUtils.isEmpty(printMapper.selectByPrimaryKey(printId))){
+    public ReturnMessage<Object> getOrderinfo(Long printId) {
+        ActPrint print=printMapper.selectByPrimaryKey(printId);
+        if(StringUtils.isEmpty(printId)||StringUtils.isEmpty(print)){
             return ReturnMessageUtil.error(0, "订单不存在！");
         }
-        return ReturnMessageUtil.sucess();
+        return ReturnMessageUtil.sucess(print);
     }
 
     @Override
@@ -95,7 +106,7 @@ public class ActPrintServiceImpl implements ActPrintService {
     }
 
     @Override
-    public ReturnMessage<Object> getOrderInfo(Long printId) {
+    public ReturnMessage<Object> pay(Long printId) {
         String outTradeNo="R"+printId;
         if(printId==0||StringUtils.isEmpty(printMapper.selectByPrimaryKey(printId))){
             return ReturnMessageUtil.error(0,"打印订单id不能为空");
@@ -119,7 +130,7 @@ public class ActPrintServiceImpl implements ActPrintService {
         //将自己想要传递到异步接口的数据，set进去 pass_back_params
         model.setPassbackParams(outTradeNo);
         request.setBizModel(model);
-        request.setNotifyUrl("http://3j383810f3.zicp.vip/pay/ali/notif_url");
+        request.setNotifyUrl("http://print/notify_url");
         try {
             //这里和普通的接口调用不同，使用的是sdkExecute
             AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);

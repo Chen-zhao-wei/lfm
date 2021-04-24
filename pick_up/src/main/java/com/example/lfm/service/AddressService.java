@@ -35,4 +35,9 @@ public interface AddressService {
      */
 
     ReturnMessage<Object> SelBydefault(HttpServletRequest request);
+
+    /**
+     * 更改默认地址
+     */
+    ReturnMessage<Object> changedefault(Long aId,HttpServletRequest request);
 }

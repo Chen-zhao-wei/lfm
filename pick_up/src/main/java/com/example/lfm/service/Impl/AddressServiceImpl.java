@@ -10,6 +10,7 @@ import com.example.lfm.utils.JwtTokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -117,6 +118,31 @@ public class AddressServiceImpl implements AddressService {
             return ReturnMessageUtil.sucess(addressMapper.SelBydefault(studentId,"0"));
         }else
         return ReturnMessageUtil.error(0, "获取默认地址失败！");
+    }
+
+    @Override
+    public ReturnMessage<Object> changedefault(Long addressId,HttpServletRequest request) {
+        SysAddress address=addressMapper.selectByPrimaryKey(addressId);
+        address.setDefaultFlag("0");
+        if (StringUtils.isEmpty(addressId)||addressMapper.selectByPrimaryKey(addressId)==null){
+            return ReturnMessageUtil.error(0, "地址不存在！");
+        }
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        String studentName= JwtTokenUtils.getStudentName(token);
+        SysStudent student=studentMapper.selectByName(studentName);
+        Long studentid=student.getStudentId();
+        if(!StringUtils.isEmpty(addressMapper.SelBydefault(studentid,"0"))){
+            SysAddress address1=addressMapper.SelBydefault(studentid,"0");
+            address1.setDefaultFlag("1");
+            addressMapper.updateByPrimaryKey(address1);
+        }
+        if (addressMapper.updateByPrimaryKey(address)==1){
+            return ReturnMessageUtil.sucess();
+        }
+            return ReturnMessageUtil.error(0, "更新失败！");
     }
 
 }

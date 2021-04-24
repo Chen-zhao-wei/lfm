@@ -40,25 +40,24 @@ public class PrintController {
     }
 
     @ApiOperation("查看个人打印订单 ")
-    @PostMapping("/orderList/{studentId}/{status}")
-    public ReturnMessage<Object> orderList(@PathVariable() Long studentId, @PathVariable() String status) {
-        return printService.orderList(studentId, status);
+    @PostMapping("/orderList/{status}")
+    public ReturnMessage<Object> orderList( @PathVariable() String status,HttpServletRequest request) {
+        return printService.orderList(status,request);
     }
 
     /**
      * 获取订单信息
      */
     @ApiOperation("查看具体订单 ")
-    @PostMapping("/SelectByKey/{printId}")
-    public ReturnMessage<Object> SelectByKey(@PathVariable() Long printId) {
-        return printService.SelectByKey(printId);
+    @PostMapping("/getinfo/{printId}")
+    public ReturnMessage<Object> getinfo(@PathVariable() Long printId) {
+        return printService.getOrderinfo(printId);
     }
 
-
     @ApiOperation("手机支付 ")
-    @GetMapping("/getOrderInfo")
-    public ReturnMessage<Object> getOrderInfo(Long printId) {
-        return printService.getOrderInfo(printId);
+    @GetMapping("/pay")
+    public ReturnMessage<Object> pay(Long printId) {
+        return printService.pay(printId);
     }
 
     /**

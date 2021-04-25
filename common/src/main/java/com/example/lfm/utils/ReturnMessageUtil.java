@@ -7,7 +7,7 @@ public class ReturnMessageUtil {
      * @return
      */
     public static ReturnMessage<Object> sucess(Object object) {
-        ReturnMessage<Object> message = new ReturnMessage<Object>(1,"sucess",object);
+        ReturnMessage<Object> message = new ReturnMessage<Object>(1,"成功",object);
         return message;
     }
     /**
@@ -15,7 +15,7 @@ public class ReturnMessageUtil {
      * @return
      */
     public static ReturnMessage<Object> sucess() {
-        ReturnMessage<Object> message = new ReturnMessage<Object>(1,"sucess",null);
+        ReturnMessage<Object> message = new ReturnMessage<Object>(1,"成功",true);
         return message;
     }
     /**
@@ -25,7 +25,7 @@ public class ReturnMessageUtil {
      * @return
      */
     public static ReturnMessage<Object> error(Integer code,String msg) {
-        ReturnMessage<Object> message = new ReturnMessage<Object>(code,msg,null);
+        ReturnMessage<Object> message = new ReturnMessage<Object>(code,msg,false);
         return message;
     }
 }

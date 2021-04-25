@@ -57,6 +57,8 @@ public class CorsConfig extends WebMvcConfigurationSupport {
                 .excludePathPatterns("/app/register")
                 .excludePathPatterns("/app/getAuthCode")
                 .excludePathPatterns("/app/getSchool")
+                .excludePathPatterns("/print/upload")
+                .excludePathPatterns("/app/uploadAvatar")
                 .excludePathPatterns("/app/login"); //登录页
               /*   .excludePathPatterns("/hlladmin/user/sendEmail") //发送邮箱
                 .excludePathPatterns("/hlladmin/user/register")

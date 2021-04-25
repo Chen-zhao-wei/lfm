@@ -210,6 +210,10 @@ public class UserMerberServiceImpl implements UserMerberService {
             logger.info(student+"=========");
             return ReturnMessageUtil.error(0, "用户名已存在！");
         }
+        if(!student.getPhoneNumber().equals(sysStudent.getPhoneNumber())&&studentMapper.selectByPhone(student.getPhoneNumber())!=null){
+            logger.info(student+"=========");
+            return ReturnMessageUtil.error(0, "手机号已存在！");
+        }
         String expression = "((^((0\\d{2,3})-)(\\d{7,8})(-(\\d{3,}))?$)|(^((13[0-9])|(15[^4,\\D])|(18[0-9])|(14[5,7])|(17[0,1,3,5-8]))\\d{8}$))";
         Pattern pattern = Pattern.compile(expression);
         Matcher matcher = pattern.matcher(student.getPhoneNumber());

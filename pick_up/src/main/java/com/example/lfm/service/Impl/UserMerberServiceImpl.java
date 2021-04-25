@@ -94,7 +94,7 @@ public class UserMerberServiceImpl implements UserMerberService {
         logger.info(expire+"++++++++++=======");
         if(expire <= 0){
             logger.error("##########当前用户token已失效,telephone:{}",telephone);
-            return ReturnMessageUtil.error(0, "当前号码token已失效！");
+            return ReturnMessageUtil.error(0, "验证码已失效！");
         }
         if (StringUtils.isEmpty(phoneCode.getSchoolId())||StringUtils.isEmpty(phoneCode.getSchoolId())){
             return ReturnMessageUtil.error(0,"必填项不能为空");
@@ -128,7 +128,7 @@ public class UserMerberServiceImpl implements UserMerberService {
             redisCache.expire(""+student.getStudentId(),60000);
             return ReturnMessageUtil.sucess(token);
         } else {
-            return ReturnMessageUtil.error(0, "获取token失败！");
+            return ReturnMessageUtil.error(100, "获取token失败！");
         }
     }
 
@@ -186,7 +186,7 @@ public class UserMerberServiceImpl implements UserMerberService {
             logger.info(stringRedisTemplate.getExpire(student1.getStudentName())+"=============");
             return ReturnMessageUtil.sucess(token);
         } else {
-            return ReturnMessageUtil.error(0, "获取token失败！");
+            return ReturnMessageUtil.error(100, "获取token失败！");
         }
     }
 
@@ -202,7 +202,7 @@ public class UserMerberServiceImpl implements UserMerberService {
         // 2.改动之后数据库中是否已经存在
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         SysStudent sysStudent=this.studentMapper.selectByPrimaryKey(studentId);
@@ -228,7 +228,7 @@ public class UserMerberServiceImpl implements UserMerberService {
     public ReturnMessage<Object> updatePassword(String password,HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         SysStudent sysStudent=this.studentMapper.selectByPrimaryKey(studentId);
@@ -244,7 +244,7 @@ public class UserMerberServiceImpl implements UserMerberService {
     public ReturnMessage<Object> selectBykey(HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         SysStudent sysStudent=this.studentMapper.selectByPrimaryKey(studentId);

@@ -78,7 +78,7 @@ public class JwtTokenUtils {
         } catch (Exception e) {
             // e.printStackTrace();
             // token 校验失败, 抛出Token验证非法异常
-            throw new SbException(0,"token校验失败");
+            throw new SbException(100,"token校验失败");
         }
         return jwt.getClaims();
     }
@@ -94,7 +94,7 @@ public class JwtTokenUtils {
         Claim claim = claims.get("studentId");
         if (null == claim) {
             // token 校验失败, 抛出Token验证非法异常
-            throw new SbException(0,"token校验失败");
+            throw new SbException(100,"token校验失败");
         }
         return claim.asLong();
     }

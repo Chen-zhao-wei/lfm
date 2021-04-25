@@ -32,7 +32,7 @@ public class AddressServiceImpl implements AddressService {
     public ReturnMessage<Object> inputaddress(SysAddress address,HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         address.setStudentId(studentId);
@@ -66,7 +66,7 @@ public class AddressServiceImpl implements AddressService {
     public ReturnMessage<Object> updateaddress(SysAddress address,HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         address.setStudentId(studentId);
@@ -90,7 +90,7 @@ public class AddressServiceImpl implements AddressService {
     public ReturnMessage<Object> selectBystudentid(HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         SysStudent student=this.studentMapper.selectByPrimaryKey(studentId);
@@ -104,7 +104,7 @@ public class AddressServiceImpl implements AddressService {
     public ReturnMessage<Object> SelBydefault(HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         if(addressMapper.SelBydefault(studentId,"0")!=null){
@@ -122,7 +122,7 @@ public class AddressServiceImpl implements AddressService {
         }
         String token = request.getHeader("x-auth-token");
         if(token==null){
-            return ReturnMessageUtil.error(0, "获取token失败");
+            return ReturnMessageUtil.error(100, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
         if(!StringUtils.isEmpty(addressMapper.SelBydefault(studentId,"0"))){

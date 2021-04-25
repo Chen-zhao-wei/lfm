@@ -59,7 +59,7 @@
       <if test="studentNumber != null and studentNumber != ''">student_number = #{studentNumber},</if>
       <if test="email != null">email = #{email},</if>
       <if test="birthday != null">birthday = #{birthday},</if>
-      <if test="sex != null">sex = #{sex},</if>
+      <if test="phoneNumber != null">phone_number = #{phoneNumber},</if>
       <if test="sex != null">sex = #{sex},</if>
       <if test="avatar != null">avatar = #{avatar},</if>
       <if test="password != null">password = #{password},</if>

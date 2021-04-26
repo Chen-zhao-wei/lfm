@@ -1,5 +1,11 @@
 package com.example.lfm.service.Impl;
 
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeRefundModel;
+import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.response.AlipayTradeRefundResponse;
+import com.example.lfm.config.AlipayConfig;
 import com.example.lfm.entity.ActPrint;
 import com.example.lfm.entity.DshOrder;
 import com.example.lfm.service.ActPrintService;
@@ -69,11 +75,28 @@ public class DelayService {
                                     ActPrint print = actPrintService.getActPrintById(id);
                                     if (print.getStatus() == "0"){ // 就代表还未支付
                                         print.setStatus("5"); //设置为取消订单
+                                        actPrintService.updateByPrimaryKey(print);
                                     }
                                 }
                             }
                         }
-
+                        if(order.getType() == 4){   //如果是类型为4，未接单取消订单
+                            log.info(order.getOrderNo());
+                            if (!order.getOrderNo().isEmpty()){
+                                String p = order.getOrderNo().substring(0,1);
+                                Long id = Long.parseLong(order.getOrderNo().substring(1));
+                                if (p == "R"){
+                                    //打印订单
+                                    ActPrint print = actPrintService.getActPrintById(id);
+                                    if (print.getStatus() == "1"){ // 就代表还未接单
+                                        print.setStatus("5"); //设置为取消订单
+                                        // 此时已支付调用退款接口
+                                        alipayRefundRequest("R" + print.getPrintId(),"",print.getFee());
+                                        actPrintService.updateByPrimaryKey(print);
+                                    }
+                                }
+                            }
+                        }
                         if (DelayService.this.listener != null) {
                             DelayService.this.listener.onDelayedArrived(order);
                         }
@@ -166,4 +189,37 @@ public class DelayService {
 //        }
 //        return false;
 //    }
+    /**
+     *
+     * @方法名称:alipayRefundRequest
+     * @内容摘要: ＜支付宝退款请求＞
+     * @param out_trade_no 订单支付时传入的商户订单号,不能和 trade_no同时为空。
+     * @param trade_no 支付宝交易号，和商户订单号不能同时为空
+     * @param refund_amount 需要退款的金额，该金额不能大于订单金额,单位为元，支持两位小数
+     * @return
+     */
+    public String alipayRefundRequest(String out_trade_no,String trade_no,double refund_amount){
+        // 发送请求
+        String strResponse = null;
+        try {
+            AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.GETEWAY_URL, AlipayConfig.APP_ID, AlipayConfig.APP_PRIVATE_KEY, "json", AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE);
+            AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+            AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+            model.setOutTradeNo(out_trade_no);
+//            model.setTradeNo(trade_no);
+            model.setRefundAmount(""+refund_amount);
+            request.setBizModel(model);
+            AlipayTradeRefundResponse response = alipayClient.execute(request);
+            strResponse=response.getCode();
+            if ("10000".equals(response.getCode())) {
+                strResponse="退款成功";
+            }else {
+                strResponse=response.getSubMsg();
+                new SbException(0,"退款失败:"+strResponse);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return strResponse;
+    }
 }

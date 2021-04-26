@@ -11,7 +11,7 @@ public interface ActPrintService {
     /**
      * 新增打印
      */
-    ReturnMessage<Object> newprint(ActPrint print);
+    ReturnMessage<Object> newprint(ActPrint print, HttpServletRequest request);
 
     /**
      * 订单列表
@@ -41,4 +41,7 @@ public interface ActPrintService {
      * 退款
      */
     ReturnMessage<Object> refund(Long printId) throws IOException, AlipayApiException;
+
+
+    ReturnMessage<Object> updateByPrimaryKey(ActPrint actPrint);
 }

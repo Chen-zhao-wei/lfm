@@ -9,9 +9,11 @@ import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.example.lfm.config.AlipayConfig;
 import com.example.lfm.dao.ActPrintMapper;
+import com.example.lfm.dao.SysDictDataMapper;
 import com.example.lfm.dao.SysStudentMapper;
 import com.example.lfm.entity.ActPrint;
 import com.example.lfm.entity.DshOrder;
+import com.example.lfm.entity.SysDictData;
 import com.example.lfm.entity.SysStudent;
 import com.example.lfm.service.ActPrintService;
 import com.example.lfm.utils.JwtTokenUtils;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,19 +39,96 @@ public class ActPrintServiceImpl implements ActPrintService {
     private SysStudentMapper studentMapper;
 
     @Autowired
+    private SysDictDataMapper sysDictDataMapper;
+    @Autowired
     private DelayService delayService;
 
     @Override
-    public ReturnMessage<Object> newprint(ActPrint print) {
-        if(StringUtils.isEmpty(print.getStudentId())||StringUtils.isEmpty(print.getFileName())|| StringUtils.isEmpty(print.getFileUrl())|| StringUtils.isEmpty(print.getAddressId())){
+    public ReturnMessage<Object> newprint(ActPrint print, HttpServletRequest request) {
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        print.setStudentId(studentId);
+        if(StringUtils.isEmpty(print.getFileName())|| StringUtils.isEmpty(print.getFileUrl())|| StringUtils.isEmpty(print.getAddressId())){
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
         print.setStatus("0");
+        // 计算价格
+        // 单面2毛一张，双页 * 1.5
+        // 如果是B4 * 2
+        // 如果是彩打 * 2
+        // 封胶加5块
+        // 封皮加2块
+        double fee = 0;
+        fee = print.getPageNum();
+        fee = fee * print.getPrintNumber();
+        // 单双面打印标志
+        List<SysDictData> bothsideTypes =  sysDictDataMapper.selectDictDataByType("sys_bothside_type");
+        if (StringUtils.isEmpty(print.getBothSideFlag())){
+            ReturnMessageUtil.error(0, "单双面标志不可为空！");
+        }
+        fee = fee * 0.2;
+        for (SysDictData sysDictData:bothsideTypes) {
+            //双页打印
+            if ("双页".equals(sysDictData.getDictLabel()) && print.getBothSideFlag().equals(sysDictData.getDictValue())){
+                fee = fee * 1.5;
+            }
+        }
+        // 纸张大小
+        List<SysDictData> paperTypes =  sysDictDataMapper.selectDictDataByType("sys_paper_type");
+        if (StringUtils.isEmpty(print.getPaperSize())){
+            ReturnMessageUtil.error(0, "纸张大小不可为空！");
+        }
+        for (SysDictData sysDictData:paperTypes) {
+            //B4打印
+            if ("B4".equals(sysDictData.getDictLabel()) && print.getPaperSize().equals(sysDictData.getDictValue())){
+                fee = fee * 2;
+            }
+        }
+        // 黑白/彩打
+        List<SysDictData> colorTypes =  sysDictDataMapper.selectDictDataByType("sys_color_type");
+        if (StringUtils.isEmpty(print.getColorFlag())){
+            ReturnMessageUtil.error(0, "彩印标志不可为空！");
+        }
+        for (SysDictData sysDictData:colorTypes) {
+            //B4打印
+            if ("彩印".equals(sysDictData.getDictLabel()) && print.getColorFlag().equals(sysDictData.getDictValue())){
+                fee = fee * 2;
+            }
+        }
+        //封胶
+        List<SysDictData> sealingTypes =  sysDictDataMapper.selectDictDataByType("sys_sealing_type");
+        if (StringUtils.isEmpty(print.getSealingFlag())){
+            ReturnMessageUtil.error(0, "封胶标志不可为空！");
+        }
+        for (SysDictData sysDictData:sealingTypes) {
+            //B4打印
+            if ("封胶".equals(sysDictData.getDictLabel()) && print.getSealingFlag().equals(sysDictData.getDictValue())){
+                fee = fee + 5;
+            }
+        }
+        //封皮
+        List<SysDictData> coverFlags =  sysDictDataMapper.selectDictDataByType("sys_cover_flag");
+        if (StringUtils.isEmpty(print.getCoverFlag())){
+            ReturnMessageUtil.error(0, "封面标志不可为空！");
+        }
+        if (print.getCoverFlag() == "0" && StringUtils.isEmpty(print.getCoverColor())){
+            ReturnMessageUtil.error(0, "封面颜色不可为空！");
+        }
+        for (SysDictData sysDictData:coverFlags) {
+            //B4打印
+            if ("封面".equals(sysDictData.getDictLabel()) && print.getBothSideFlag().equals(sysDictData.getDictValue())){
+                fee = fee + 2;
+            }
+        }
+        print.setFee(fee);
         if(printMapper.insert(print)==1){
             // 添加成功后，创建一个1小时之内没有付款就自动取消订单的定时器
             DshOrder dshOrder = new DshOrder("R"+print.getPrintId(),30 * 60 * 1000,1);
             delayService.add(dshOrder);
-            return ReturnMessageUtil.sucess();
+            return ReturnMessageUtil.sucess(print);
         }
         return ReturnMessageUtil.error(0, "下单失败！");
     }
@@ -119,8 +199,8 @@ public class ActPrintServiceImpl implements ActPrintService {
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
-        model.setBody("我是测试数据");//加签过的订单详情
-        model.setSubject("打印");
+        model.setBody("");//加签过的订单详情
+        model.setSubject(actPrint.getFileName());
         model.setOutTradeNo(outTradeNo); //交易号 OutTradeNo只能为数字、英文或下划线；此外，OutTradeNo不可以重复，若重复则会出现系统繁忙等错误。
         model.setTimeoutExpress("30m");
         model.setTotalAmount(""+actPrint.getFee());
@@ -128,13 +208,11 @@ public class ActPrintServiceImpl implements ActPrintService {
         //将自己想要传递到异步接口的数据，set进去 pass_back_params
         model.setPassbackParams(outTradeNo);
         request.setBizModel(model);
-        request.setNotifyUrl("http://print/notify_url");
+        request.setNotifyUrl("http://47.119.126.86:8084/print/notify_url");
         try {
             //这里和普通的接口调用不同，使用的是sdkExecute
             AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
             System.out.println("response.getBody()：" + response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
-            actPrint.setStatus("1");//已支付
-            printMapper.updateByPrimaryKey(actPrint);
             return ReturnMessageUtil.sucess(response.getBody());
         } catch (
                 AlipayApiException e) {
@@ -191,5 +269,10 @@ public class ActPrintServiceImpl implements ActPrintService {
             return ReturnMessageUtil.sucess();
         }
         return ReturnMessageUtil.error(0,"不能取消该订单");
+    }
+
+    @Override
+    public ReturnMessage<Object> updateByPrimaryKey(ActPrint actPrint){
+        return ReturnMessageUtil.sucess(printMapper.updateByPrimaryKey(actPrint));
     }
 }

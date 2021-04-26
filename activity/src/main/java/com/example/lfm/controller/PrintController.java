@@ -2,18 +2,18 @@ package com.example.lfm.controller;
 
 import com.alipay.api.AlipayApiException;
 import com.example.lfm.entity.ActPrint;
+import com.example.lfm.entity.DshOrder;
 import com.example.lfm.entity.File;
 import com.example.lfm.service.ActPrintService;
-import com.example.lfm.utils.FastDFSUtils;
-import com.example.lfm.utils.ReturnMessageUtil;
-import com.example.lfm.utils.SbException;
+import com.example.lfm.service.Impl.DelayService;
+import com.example.lfm.utils.*;
 import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
+import io.lettuce.core.resource.Delay;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.example.lfm.utils.ReturnMessage;
 import org.springframework.web.multipart.MultipartFile;
 import sun.management.resources.agent;
 
@@ -32,12 +32,14 @@ public class PrintController {
     private ActPrintService printService;
 
     @Autowired
+    private DelayService delayService;
+    @Autowired
     private FastDFSUtils fastDFSUtils;
 
     @ApiOperation("新增打印")
     @PostMapping("/newprint")
-    public ReturnMessage<Object> newprint(@RequestBody ActPrint print) {
-        return printService.newprint(print);
+    public ReturnMessage<Object> newprint(@RequestBody ActPrint print, HttpServletRequest request) {
+        return printService.newprint(print,request);
     }
 
     @ApiOperation("查看个人打印订单 ")
@@ -82,7 +84,16 @@ public class PrintController {
         // 交易状态
         String trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"), "GBK");
         if (trade_status.equals("TRADE_SUCCESS")) {//支付成功商家操作
-
+            if (StringUtils.isNotEmpty(out_trade_no)&& "R".equals(out_trade_no.substring(0,1))){
+                Long printId =  Long.parseLong(out_trade_no.substring(1));
+                ActPrint actPrint = printService.getActPrintById(printId);
+                if (actPrint.getStatus() == "0"){
+                    actPrint.setStatus("1");
+                    printService.updateByPrimaryKey(actPrint);
+                    DshOrder dshOrder = new DshOrder("R"+actPrint.getPrintId(),24 * 60 * 60 * 1000,4);
+                    delayService.add(dshOrder);
+                }
+            }
         }
     }
 

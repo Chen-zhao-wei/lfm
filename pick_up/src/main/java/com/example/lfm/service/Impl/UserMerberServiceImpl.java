@@ -112,6 +112,7 @@ public class UserMerberServiceImpl implements UserMerberService {
         student.setPassword("123456");
         student.setSchoolId(phoneCode.getSchoolId());
         student.setStudentNumber(phoneCode.getStudentNumber());
+        student.setDelFlag("0");
         if(studentMapper.insert(student)==0){
             return ReturnMessageUtil.error(0, "注册失败！");
         }
@@ -140,6 +141,7 @@ public class UserMerberServiceImpl implements UserMerberService {
         if (StringUtils.isEmpty(student.getStudentNumber())||StringUtils.isEmpty(student.getSchoolId())){
             return ReturnMessageUtil.error(0,"必填项不能为空");
         }
+        student.setDelFlag("0");
         if(studentMapper.insert(student)==0){
             return ReturnMessageUtil.error(0, "注册失败！");
         }

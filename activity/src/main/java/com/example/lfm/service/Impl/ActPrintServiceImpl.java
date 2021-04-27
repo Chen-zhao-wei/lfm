@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -124,6 +125,7 @@ public class ActPrintServiceImpl implements ActPrintService {
             }
         }
         print.setFee(fee);
+        print.setCreateTime(new Date());
         if(printMapper.insert(print)==1){
             // 添加成功后，创建一个1小时之内没有付款就自动取消订单的定时器
             DshOrder dshOrder = new DshOrder("R"+print.getPrintId(),30 * 60 * 1000,1);

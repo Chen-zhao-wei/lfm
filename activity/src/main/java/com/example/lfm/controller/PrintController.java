@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/print")
@@ -75,20 +76,30 @@ public class PrintController {
         System.out.println("----------------------------notify_url------------------------");
         // 商户订单号
         String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"), "GBK");
+        System.out.println("----------------------------notify_url-----out_trade_no-------------------"+out_trade_no);
         // 付款金额
         String total_amount = new String(request.getParameter("total_amount").getBytes("ISO-8859-1"), "GBK");
+        System.out.println("----------------------------notify_url---total_amount---------------------"+total_amount);
         // 支付宝交易号
         String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"), "GBK");
+        System.out.println("----------------------------notify_url-------trade_no-----------------"+trade_no);
         // 交易说明
         String cus = new String(request.getParameter("body").getBytes("ISO-8859-1"), "GBK");
+        System.out.println("----------------------------notify_url---------------cus---------"+cus);
         // 交易状态
         String trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"), "GBK");
+        System.out.println("----------------------------notify_url------------------------"+trade_status);
         if (trade_status.equals("TRADE_SUCCESS")) {//支付成功商家操作
+            System.out.println("----------------------------notify_url-------------------成功-----");
             if (StringUtils.isNotEmpty(out_trade_no)&& "R".equals(out_trade_no.substring(0,1))){
                 Long printId =  Long.parseLong(out_trade_no.substring(1));
+                System.out.println("----------------------------notify_url------------printId------------" + printId);
                 ActPrint actPrint = printService.getActPrintById(printId);
-                if (actPrint.getStatus() == "0"){
+                System.out.println("----------------------------notify_url------------actPrint------------" + actPrint.getStatus());
+                if ("0".equals(actPrint.getStatus())){
+                    System.out.println("----------------------------notify_url----------------getStatus--------");
                     actPrint.setStatus("1");
+                    actPrint.setPayTime(new Date());
                     printService.updateByPrimaryKey(actPrint);
                     DshOrder dshOrder = new DshOrder("R"+actPrint.getPrintId(),24 * 60 * 60 * 1000,4);
                     delayService.add(dshOrder);

@@ -34,7 +34,7 @@ public interface ActPrintService {
     /**
      * 取消订单
      */
-    ReturnMessage<Object> cancelorder(Long orderId);
+    ReturnMessage<Object> cancelorder(Long orderId) throws IOException, AlipayApiException;
 
     /**
      *

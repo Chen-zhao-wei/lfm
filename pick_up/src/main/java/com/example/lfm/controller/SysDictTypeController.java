@@ -52,6 +52,11 @@ public class SysDictTypeController
         return ReturnMessageUtil.sucess(dictTypeService.insertDictType(dict));
     }
 
+    @GetMapping("/printOrderStatus")
+    public ReturnMessage<Object> printOrderStatus()
+    {
+        return ReturnMessageUtil.sucess(dictTypeService.selectDictDataByType("sys_print_status"));
+    }
     /**
      * 修改字典类型
      */

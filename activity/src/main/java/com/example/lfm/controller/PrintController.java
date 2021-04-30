@@ -31,7 +31,6 @@ import java.util.Date;
 public class PrintController {
     @Autowired
     private ActPrintService printService;
-
     @Autowired
     private DelayService delayService;
     @Autowired
@@ -62,6 +61,13 @@ public class PrintController {
     @GetMapping("/pay")
     public ReturnMessage<Object> pay(Long printId) {
         return printService.pay(printId);
+    }
+
+
+    @ApiOperation("取消订单 ")
+    @GetMapping("/cancelPrintOrder")
+    public ReturnMessage<Object> cancelPrintOrder(Long printId) throws IOException, AlipayApiException {
+        return printService.cancelorder(printId);
     }
 
     /**

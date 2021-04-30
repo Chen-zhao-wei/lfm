@@ -33,6 +33,7 @@
     <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="del_flag" jdbcType="CHAR" property="delFlag" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     <!--
@@ -131,9 +132,9 @@
     select print_id, student_id, file_name, file_url, user_print_id, user_delivery_id,
     print_number, both_side_flag, color_flag, sealing_flag, cover_flag, paper_size, student_remark,
     `status`, address_id, cover_color, fee,page_num, pay_time, print_time, delivery_time, finish_time,
-    create_by, create_time, update_by, update_time, remark
+    create_by, create_time, update_by, update_time, remark,del_flag
     from act_print
-    where student_id = #{studentId,jdbcType=BIGINT} and status =#{status,jdbcType=CHAR}
+    where student_id = #{studentId,jdbcType=BIGINT} and status =#{status,jdbcType=CHAR} and del_flag=0
   </select>
   <select id="selectAll" resultMap="BaseResultMap">
     <!--

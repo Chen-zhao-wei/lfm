@@ -11,12 +11,12 @@ import com.example.lfm.config.AlipayConfig;
 import com.example.lfm.dao.ActPrintMapper;
 import com.example.lfm.dao.SysDictDataMapper;
 import com.example.lfm.dao.SysStudentMapper;
-import com.example.lfm.entity.ActPrint;
-import com.example.lfm.entity.DshOrder;
-import com.example.lfm.entity.SysDictData;
-import com.example.lfm.entity.SysStudent;
+import com.example.lfm.dao.SysUserMapper;
+import com.example.lfm.entity.*;
 import com.example.lfm.service.ActPrintService;
 import com.example.lfm.utils.JwtTokenUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -34,11 +34,13 @@ import java.util.UUID;
 
 @Service
 public class ActPrintServiceImpl implements ActPrintService {
+    private static Logger logger = LoggerFactory.getLogger(ActPrintServiceImpl.class);
     @Autowired
     private ActPrintMapper printMapper;
     @Autowired
     private SysStudentMapper studentMapper;
-
+    @Autowired
+    private SysUserMapper userMapper;
     @Autowired
     private SysDictDataMapper sysDictDataMapper;
     @Autowired
@@ -177,7 +179,22 @@ public class ActPrintServiceImpl implements ActPrintService {
         if(StringUtils.isEmpty(printId)||StringUtils.isEmpty(print)){
             return ReturnMessageUtil.error(0, "订单不存在！");
         }
-        return ReturnMessageUtil.sucess(print);
+        //打印员
+        SysUser printuser=userMapper.selectByPrimaryKey(print.getUserPrintId());
+        //派送员
+        SysUser deliveruser=userMapper.selectByPrimaryKey(print.getUserDeliveryId());
+
+        if(print.getStatus().equals(1)||print.getStatus().equals(0)){
+            logger.info("打印订单未接单=======================================");
+            return ReturnMessageUtil.sucess(print);
+        } else if(print.getStatus().equals(3)){
+            logger.info("打印订单已接单");
+            return ReturnMessageUtil.sucess(print+""+printuser);
+        }else if (print.getStatus().equals(4)){
+            logger.info("打印订单已派送");
+            return ReturnMessageUtil.sucess(print+""+printuser+""+deliveruser);
+        }
+        return ReturnMessageUtil.error(0,"查询失败");
     }
 
     @Override
@@ -257,7 +274,7 @@ public class ActPrintServiceImpl implements ActPrintService {
     }
 
     @Override
-    public ReturnMessage<Object> cancelorder(Long printId) {
+    public ReturnMessage<Object> cancelorder(Long printId)throws IOException, AlipayApiException {
         if(printId==0||StringUtils.isEmpty(printMapper.selectByPrimaryKey(printId))){
             return ReturnMessageUtil.error(0,"打印订单id不能为空");
         }
@@ -266,7 +283,12 @@ public class ActPrintServiceImpl implements ActPrintService {
             return ReturnMessageUtil.error(0,"不存在该订单");
         }
         if(actPrint.getStatus().equals("0")||actPrint.getStatus().equals("1")){
+            if(actPrint.getStatus().equals("1")){
+                //如果已支付就执行退款操作
+                refund(printId);
+            }
             actPrint.setStatus("5");//取消订单
+            actPrint.setCancelTime(new Date());//取消时间
             printMapper.updateByPrimaryKey(actPrint);
             return ReturnMessageUtil.sucess();
         }

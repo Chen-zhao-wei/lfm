@@ -149,11 +149,11 @@ public class ActPrintServiceImpl implements ActPrintService {
             return ReturnMessageUtil.error(0, "学生不存在！");
         }
         //当无状态码时默认查询全部订单
-        if(StringUtils.isEmpty(status)||status==null){
-            if(StringUtils.isEmpty(printMapper.selectByStudentId(studentId))){
+        if(status.equals("9")){
+            if(StringUtils.isEmpty(printMapper.selectByStudentId(studentId,"0"))){
                 return ReturnMessageUtil.error(0, "暂无订单信息！");
             }
-            return ReturnMessageUtil.sucess(printMapper.selectByStudentId(studentId));
+            return ReturnMessageUtil.sucess(printMapper.selectByStudentId(studentId,"0"));
         }
         /**
          * 0:待支付
@@ -163,10 +163,10 @@ public class ActPrintServiceImpl implements ActPrintService {
          * 4.已收货
          */
         if(status.equals("0")||status.equals("1")||status.equals("2")||status.equals("3")||status.equals("4")){
-            if(StringUtils.isEmpty(printMapper.selectBySIdStatus(studentId,status))){
+            if(StringUtils.isEmpty(printMapper.selectBySIdStatus(studentId,status,"0"))){
                 return ReturnMessageUtil.error(0, "暂无订单信息！");
             }
-            return ReturnMessageUtil.sucess(printMapper.selectBySIdStatus(studentId,status));
+            return ReturnMessageUtil.sucess(printMapper.selectBySIdStatus(studentId,status,"0"));
         }
         return ReturnMessageUtil.error(0, "错误信息！");
     }
@@ -183,14 +183,14 @@ public class ActPrintServiceImpl implements ActPrintService {
         SysUser printuser=userMapper.selectByPrimaryKey(print.getUserPrintId());
         //派送员
         SysUser deliveruser=userMapper.selectByPrimaryKey(print.getUserDeliveryId());
-
-        if(print.getStatus().equals(1)||print.getStatus().equals(0)){
+        String status=print.getStatus();
+        if(status.equals("1")||status.equals("0")){
             logger.info("打印订单未接单=======================================");
             return ReturnMessageUtil.sucess(print);
-        } else if(print.getStatus().equals(3)){
+        } else if(status.equals("3")){
             logger.info("打印订单已接单");
             return ReturnMessageUtil.sucess(print+""+printuser);
-        }else if (print.getStatus().equals(4)){
+        }else if (status.equals("4")){
             logger.info("打印订单已派送");
             return ReturnMessageUtil.sucess(print+""+printuser+""+deliveruser);
         }
@@ -298,5 +298,20 @@ public class ActPrintServiceImpl implements ActPrintService {
     @Override
     public ReturnMessage<Object> updateByPrimaryKey(ActPrint actPrint){
         return ReturnMessageUtil.sucess(printMapper.updateByPrimaryKey(actPrint));
+    }
+
+    @Override
+    public ReturnMessage<Object> confirm(Long printId) {
+        ActPrint print=printMapper.selectByPrimaryKey(printId);
+        if(printId==0||StringUtils.isEmpty(print)){
+            return ReturnMessageUtil.error(0,"不存在该订单");
+        }
+        if(print.getStatus().equals("3")){
+            print.setStatus("4");
+            printMapper.updateByPrimaryKey(print);
+            return ReturnMessageUtil.sucess();
+        }
+        return ReturnMessageUtil.error(0,"收货失败！");
+
     }
 }

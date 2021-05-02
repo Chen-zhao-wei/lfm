@@ -14,7 +14,9 @@ public interface PickUpService {
 
     ReturnMessage<Object> getOrderInfo(Long pickUpId);
 
-    ReturnMessage<Object> pay(Long printId);
+    ReturnMessage<Object> pay(Long pickUpId);
 
-    ReturnMessage<Object> cancelPickUpOrder(Long printId) throws AlipayApiException;
+    ReturnMessage<Object> cancelPickUpOrder(Long pickUpId) throws AlipayApiException;
+
+    ReturnMessage<Object> confirm(Long pickUpId);
 }

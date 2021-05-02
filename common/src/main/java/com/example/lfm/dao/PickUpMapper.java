@@ -34,6 +34,11 @@ public interface PickUpMapper {
      *
      * @mbg.generated
      */
+    //通过学生id获取该学生所有的订单信息
+    List<PickUp> selectByStudentId(Long studentId,String delFlag);
+    //通过学生id以及订单状态获取对应的订单信息
+    List<PickUp> selectBySIdStatus(Long studentId, String status,String delFlag);
+
     List<PickUp> selectAll();
 
     /**
@@ -43,9 +48,4 @@ public interface PickUpMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(PickUp record);
-//通过学生id获取该学生所有的订单信息
-    List<PickUp> selectByStudentId(Long studentId);
-//通过学生id以及订单状态获取对应的订单信息
-    List<PickUp> selectBySIdStatus(Long studentId, String status);
-
 }

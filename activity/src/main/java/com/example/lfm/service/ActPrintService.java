@@ -44,4 +44,6 @@ public interface ActPrintService {
 
 
     ReturnMessage<Object> updateByPrimaryKey(ActPrint actPrint);
+
+    ReturnMessage<Object> confirm(Long printId);
 }

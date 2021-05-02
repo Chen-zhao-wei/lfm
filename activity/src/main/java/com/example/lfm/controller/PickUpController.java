@@ -16,7 +16,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/pick_up")
 @Api(value = "代取快递")
-public class PicckUpController {
+public class PickUpController {
     @Autowired
     private PickUpService pickUpService;
 
@@ -43,15 +43,19 @@ public class PicckUpController {
 
     @ApiOperation("手机支付 ")
     @GetMapping("/pay")
-    public ReturnMessage<Object> pay(Long printId) {
-        return pickUpService.pay(printId);
+    public ReturnMessage<Object> pay(Long pickUpId) {
+        return pickUpService.pay(pickUpId);
     }
 
     @ApiOperation("取消订单 ")
     @GetMapping("/cancelPickUpOrder")
-    public ReturnMessage<Object> cancelPickUpOrder(Long printId) throws IOException, AlipayApiException {
-        return pickUpService.cancelPickUpOrder(printId);
+    public ReturnMessage<Object> cancelPickUpOrder(Long pickUpId) throws IOException, AlipayApiException {
+        return pickUpService.cancelPickUpOrder(pickUpId);
     }
 
-
+    @ApiOperation("确认收货 ")
+    @GetMapping("/confirm")
+    public ReturnMessage<Object> confirm(Long pickUpId)  {
+        return pickUpService.confirm(pickUpId);
+    }
 }

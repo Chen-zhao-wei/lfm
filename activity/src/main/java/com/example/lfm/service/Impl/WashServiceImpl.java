@@ -8,13 +8,11 @@ import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.example.lfm.config.AlipayConfig;
-import com.example.lfm.dao.PickUpMapper;
 import com.example.lfm.dao.SysStudentMapper;
 import com.example.lfm.dao.SysUserMapper;
-import com.example.lfm.entity.ActPrint;
-import com.example.lfm.entity.PickUp;
-import com.example.lfm.entity.SysUser;
-import com.example.lfm.service.PickUpService;
+import com.example.lfm.dao.WashingMapper;
+import com.example.lfm.entity.*;
+import com.example.lfm.service.WashService;
 import com.example.lfm.utils.JwtTokenUtils;
 import com.example.lfm.utils.ReturnMessage;
 import com.example.lfm.utils.ReturnMessageUtil;
@@ -27,29 +25,52 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class PickUpServiceImpl implements PickUpService {
+public class WashServiceImpl implements WashService {
     @Autowired
-    private SysUserMapper userMapper;
-    @Autowired
-    private PickUpMapper pickUpMapper;
+    private WashingMapper washingMapper;
     @Autowired
     private SysStudentMapper studentMapper;
+    @Autowired
+    private SysUserMapper userMapper;
     @Override
-    public ReturnMessage<Object> newPickUp(PickUp pickUp, HttpServletRequest request) {
+    public ReturnMessage<Object> newWash(Washing washing, HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
         if(token==null){
             return ReturnMessageUtil.error(0, "获取token失败");
         }
         Long studentId= JwtTokenUtils.getStudentId(token);
-        pickUp.setStudentId(studentId);
-        if(StringUtils.isEmpty(pickUp.getTakeCode())|| StringUtils.isEmpty(pickUp.getAddress())|| StringUtils.isEmpty(pickUp.getAddressId())|| StringUtils.isEmpty(pickUp.getTakeName())|| StringUtils.isEmpty(pickUp.getTakePhone())){
+        washing.setStudentId(studentId);
+        if(StringUtils.isEmpty(washing.getAddressId())|| StringUtils.isEmpty(washing.getClothesNumber())|| StringUtils.isEmpty(washing.getAddressId())|| StringUtils.isEmpty(washing.getClothesType())|| StringUtils.isEmpty(washing.getWashType())){
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
-        pickUp.setCreateTime(new Date());
-        if(pickUpMapper.insert(pickUp)==1){
+        washing.setCreateTime(new Date());
+        //价格随便给的算法算的
+        Double fee=0.0;
+        if(washing.getClothesType().equals("0")){
+            fee=fee+4;
+        }else if (washing.getClothesType().equals("1")){
+            fee=fee+6;
+        }else if (washing.getClothesType().equals("2")){
+            fee=fee+10;
+        }else if (washing.getClothesType().equals("3")){
+            fee=fee+8;
+        }
+        if(washing.getWashType().equals("0")){
+            fee=fee+5;
+        }else if(washing.getWashType().equals("1")){
+            fee=fee+2;
+        }else if(washing.getWashType().equals("2")){
+            fee=fee+4;
+        }else if(washing.getWashType().equals("3")){
+            fee=fee+6;
+        }else if(washing.getWashType().equals("4")){
+            fee=fee+3;
+        }
+        fee=fee*washing.getClothesNumber();
+        washing.setFee(fee);
+        if(washingMapper.insert(washing)==1){
             return ReturnMessageUtil.sucess();
         }
-        pickUp.setFee(1.0);
         return ReturnMessageUtil.error(0, "新建失败！");
     }
 
@@ -63,52 +84,66 @@ public class PickUpServiceImpl implements PickUpService {
         if(StringUtils.isEmpty(studentId)||StringUtils.isEmpty(StringUtils.isEmpty(studentMapper.selectByPrimaryKey(studentId)))){
             return ReturnMessageUtil.error(0, "学生不存在！");
         }
-        //当无状态码时默认查询全部订单
+        //当状态码为9时默认查询全部订单
         if(status.equals("9")){
-            if(StringUtils.isEmpty(pickUpMapper.selectByStudentId(studentId,"0"))){
+            if(StringUtils.isEmpty(washingMapper.selectByStudentId(studentId,"0"))){
                 return ReturnMessageUtil.error(0, "暂无订单信息！");
             }
-            return ReturnMessageUtil.sucess(pickUpMapper.selectByStudentId(studentId,"0"));
+            return ReturnMessageUtil.sucess(washingMapper.selectByStudentId(studentId,"0"));
         }
         /**
-         * 0:待支付
-         * 1：待派送
-         * 2.待收货
-         * 3.已收货
+         * 0下单 1支付 2接单 3上门取件 4洗衣 5派送 6收货 7取消
          */
-        if(status.equals("0")||status.equals("1")||status.equals("2")||status.equals("3")||status.equals("4")){
-            if(StringUtils.isEmpty(pickUpMapper.selectBySIdStatus(studentId,status,"0"))){
+        if(status.equals("0")||status.equals("1")||status.equals("2")||status.equals("3")||status.equals("4")
+                ||status.equals("5")||status.equals("6")||status.equals("7")){
+            if(StringUtils.isEmpty(washingMapper.selectBySIdStatus(studentId,status,"0"))){
                 return ReturnMessageUtil.error(0, "暂无订单信息！");
             }
-            return ReturnMessageUtil.sucess(pickUpMapper.selectBySIdStatus(studentId,status,"0"));
+            return ReturnMessageUtil.sucess(washingMapper.selectBySIdStatus(studentId,status,"0"));
         }
         return ReturnMessageUtil.error(0, "错误信息！");
     }
 
     @Override
-    public ReturnMessage<Object> getOrderInfo(Long pickUpId) {
-        PickUp pickUp = pickUpMapper.selectByPrimaryKey(pickUpId);
-        if (StringUtils.isEmpty(pickUpId) || StringUtils.isEmpty(pickUp)) {
+    public ReturnMessage<Object> getOrderInfo(Long washingId) {
+        Washing washing = washingMapper.selectByPrimaryKey(washingId);
+        if (StringUtils.isEmpty(washingId) || StringUtils.isEmpty(washing)) {
             return ReturnMessageUtil.error(0, "订单不存在！");
         }
-        SysUser pickUser = userMapper.selectByPrimaryKey(pickUp.getUserPickId());
-        String status = pickUp.getStatus();
-        if (status.equals("1") || status.equals("0") || status.equals("4")) {
-            return ReturnMessageUtil.sucess(pickUp);
-        } else if (status.equals("2") || status.equals("3") ) {
-            return ReturnMessageUtil.sucess(pickUp + "" + pickUser);
+        //接单人
+        SysUser takeuser = userMapper.selectByPrimaryKey(washing.getUserTakeId());
+        //接衣服员
+        SysUser fetchuser=userMapper.selectByPrimaryKey(washing.getUserFetchId());
+        //洗衣员
+        SysUser washinguser=userMapper.selectByPrimaryKey(washing.getUserWashingId());
+        //派送员
+        SysUser delivery=userMapper.selectByPrimaryKey(washing.getUserDeliveryId());
+        String status = washing.getStatus();
+        /**
+         * 0下单 1支付 2接单 3上门取件 4洗衣 5派送 6收货 7取消
+         */
+        if (status.equals("1") || status.equals("0") || status.equals("7")) {
+            return ReturnMessageUtil.sucess(washing);
+        } else if (status.equals("2") ) {
+            return ReturnMessageUtil.sucess(washing + "" + takeuser);
+        }else if(status.equals("3") ){
+            return ReturnMessageUtil.sucess(washing + "" + takeuser+""+fetchuser);
+        }else if( status.equals("4")){
+            return ReturnMessageUtil.sucess(washing + "" + takeuser+""+fetchuser+""+washinguser);
+        }else if( status.equals("6")|| status.equals("5")){
+            return ReturnMessageUtil.sucess(washing + "" + takeuser+""+fetchuser+""+washinguser+""+delivery);
         }
         return ReturnMessageUtil.error(0,"错误信息");
     }
 
     @Override
-    public ReturnMessage<Object> pay(Long pickUpId) {
-        String outTradeNo="P"+pickUpId;
-        if(pickUpId==0||StringUtils.isEmpty(pickUpMapper.selectByPrimaryKey(pickUpId))){
+    public ReturnMessage<Object> pay(Long washId) {
+        String outTradeNo="W"+washId;
+        if(washId==0||StringUtils.isEmpty(washingMapper.selectByPrimaryKey(washId))){
             return ReturnMessageUtil.error(0,"打印订单id不能为空");
         }
-        PickUp pickUp=pickUpMapper.selectByPrimaryKey(pickUpId);
-        if(StringUtils.isEmpty(pickUp)){
+        Washing washing=washingMapper.selectByPrimaryKey(washId);
+        if(StringUtils.isEmpty(washing)){
             return ReturnMessageUtil.error(0,"不存在该订单");
         }
         //实例化客户端
@@ -117,11 +152,11 @@ public class PickUpServiceImpl implements PickUpService {
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
- //       model.setBody();//加签过的订单详情
- //       model.setSubject();
+        //       model.setBody();//加签过的订单详情
+        //       model.setSubject();
         model.setOutTradeNo(outTradeNo); //交易号 OutTradeNo只能为数字、英文或下划线；此外，OutTradeNo不可以重复，若重复则会出现系统繁忙等错误。
         model.setTimeoutExpress("30m");
-        model.setTotalAmount(""+pickUp.getFee());
+        model.setTotalAmount(""+washing.getFee());
         model.setProductCode("QUICK_MSECURITY_PAY");
         //将自己想要传递到异步接口的数据，set进去 pass_back_params
         model.setPassbackParams(outTradeNo);
@@ -140,51 +175,51 @@ public class PickUpServiceImpl implements PickUpService {
     }
 
     @Override
-    public ReturnMessage<Object> cancelPickUpOrder(Long pickUpId) throws AlipayApiException {
-        if(pickUpId==0||StringUtils.isEmpty(pickUpMapper.selectByPrimaryKey(pickUpId))){
+    public ReturnMessage<Object> cancelWashOrder(Long washId) throws AlipayApiException {
+        if(washId==0||StringUtils.isEmpty(washingMapper.selectByPrimaryKey(washId))){
             return ReturnMessageUtil.error(0,"打印订单id不能为空");
         }
-        PickUp pickUp=pickUpMapper.selectByPrimaryKey(pickUpId);
-        if(StringUtils.isEmpty(pickUp)){
+        Washing washing=washingMapper.selectByPrimaryKey(washId);
+        if(StringUtils.isEmpty(washing)){
             return ReturnMessageUtil.error(0,"不存在该订单");
         }
-        if(pickUp.getStatus().equals("0")||pickUp.getStatus().equals("1")){
-            if(pickUp.getStatus().equals("1")){
+        if(washing.getStatus().equals("0")||washing.getStatus().equals("1")){
+            if(washing.getStatus().equals("1")){
                 //如果已支付就执行退款操作
-                refund(pickUpId);
+                refund(washId);
             }
-            pickUp.setStatus("5");//取消订单
-            pickUp.setCancelTime(new Date());//取消时间
-            pickUpMapper.updateByPrimaryKey(pickUp);
+            washing.setStatus("5");//取消订单
+            washing.setCancelTime(new Date());//取消时间
+            washingMapper.updateByPrimaryKey(washing);
             return ReturnMessageUtil.sucess();
         }
         return ReturnMessageUtil.error(0,"不能取消该订单");
     }
 
     @Override
-    public ReturnMessage<Object> confirm(Long pickUpId) {
-        PickUp pickUp=pickUpMapper.selectByPrimaryKey(pickUpId);
-        if(pickUpId==0||StringUtils.isEmpty(pickUp)){
+    public ReturnMessage<Object> confirm(Long washingId) {
+        Washing washing=washingMapper.selectByPrimaryKey(washingId);
+        if(washingId==0||StringUtils.isEmpty(washing)){
             return ReturnMessageUtil.error(0,"不存在该订单");
         }
-        if(pickUp.getStatus().equals("2")){
-            pickUp.setStatus("3");
-            pickUpMapper.updateByPrimaryKey(pickUp);
+        if(washing.getStatus().equals("5")){
+            washing.setStatus("6");
+            washingMapper.updateByPrimaryKey(washing);
             return ReturnMessageUtil.sucess();
         }
         return ReturnMessageUtil.error(0,"收货失败！");
     }
 
-    private ReturnMessage<Object> refund(Long pickUpId) throws AlipayApiException {
+    private ReturnMessage<Object> refund(Long washId) throws AlipayApiException {
         //response.setContentType("text/html;charset=utf-8");
         //PrintWriter out = response.getWriter();
         //获得初始化的AlipayClient
-        String outTradeNo="R"+pickUpId;
-        if(pickUpId==0||StringUtils.isEmpty(pickUpMapper.selectByPrimaryKey(pickUpId))){
+        String outTradeNo="R"+washId;
+        if(washId==0||StringUtils.isEmpty(washingMapper.selectByPrimaryKey(washId))){
             return ReturnMessageUtil.error(0,"打印订单id不能为空");
         }
-        PickUp pickUp=pickUpMapper.selectByPrimaryKey(pickUpId);
-        if(StringUtils.isEmpty(pickUp)){
+        Washing washing=washingMapper.selectByPrimaryKey(washId);
+        if(StringUtils.isEmpty(washing)){
             return ReturnMessageUtil.error(0,"不存在该订单");
         }
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.GETEWAY_URL, AlipayConfig.APP_ID, AlipayConfig.APP_PRIVATE_KEY, "json", AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE);
@@ -193,7 +228,7 @@ public class PickUpServiceImpl implements PickUpService {
         //商户订单号，必填
         String out_trade_no = new String(outTradeNo);
         //需要退款的金额，该金额不能大于订单金额，必填
-        String refund_amount = new String(pickUp.getFee()+"");
+        String refund_amount = new String(washing.getFee()+"");
         //标识一次退款请求，同一笔交易多次退款需要保证唯一，如需部分退款，则此参数必传
         String out_request_no = new String(UUID.randomUUID().toString());
 
@@ -205,5 +240,4 @@ public class PickUpServiceImpl implements PickUpService {
         //输出
         return ReturnMessageUtil.sucess(result);
     }
-
 }

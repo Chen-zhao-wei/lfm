@@ -43,4 +43,8 @@ public interface WashingMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(Washing record);
+
+    List<Washing> selectBySIdStatus(Long studentId, String status, String delFlag);
+
+    List<Washing> selectByStudentId(Long studentId, String delFlag);
 }

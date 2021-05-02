@@ -45,7 +45,7 @@ public interface ActPrintMapper {
      */
     int updateByPrimaryKey(ActPrint record);
 
-    ActPrint selectByStudentId(Long studentId);
+    List<ActPrint> selectByStudentId(Long studentId,String delFlag);
 
-    ActPrint selectBySIdStatus(Long studentId, String status);
+    List<ActPrint> selectBySIdStatus(Long studentId, String status,String delFlag);
 }

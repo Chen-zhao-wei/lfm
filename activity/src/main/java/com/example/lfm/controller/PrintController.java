@@ -123,6 +123,11 @@ public class PrintController {
         return printService.refund(printId);
     }
 
+    @ApiOperation("确认收货 ")
+    @GetMapping("/confirm")
+    public ReturnMessage<Object> confirm(Long printId)  {
+        return printService.confirm(printId);
+    }
     /**
      * 上传文件接口
      */

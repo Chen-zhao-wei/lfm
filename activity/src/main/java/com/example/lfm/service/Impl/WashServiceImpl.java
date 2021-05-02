@@ -44,6 +44,8 @@ public class WashServiceImpl implements WashService {
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
         washing.setCreateTime(new Date());
+        washing.setStatus("0");
+        washing.setDelFlag("0");
         //价格随便给的算法算的
         Double fee=0.0;
         if(washing.getClothesType().equals("0")){

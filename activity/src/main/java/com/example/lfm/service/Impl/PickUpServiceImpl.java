@@ -46,6 +46,8 @@ public class PickUpServiceImpl implements PickUpService {
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
         pickUp.setCreateTime(new Date());
+        pickUp.setStatus("0");
+        pickUp.setDelFlag("0");
         if(pickUpMapper.insert(pickUp)==1){
             return ReturnMessageUtil.sucess();
         }

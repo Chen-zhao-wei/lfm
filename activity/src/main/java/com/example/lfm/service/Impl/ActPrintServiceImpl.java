@@ -127,6 +127,7 @@ public class ActPrintServiceImpl implements ActPrintService {
             }
         }
         print.setFee(fee);
+        print.setDelFlag("0");
         print.setCreateTime(new Date());
         if(printMapper.insert(print)==1){
             // 添加成功后，创建一个1小时之内没有付款就自动取消订单的定时器

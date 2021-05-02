@@ -45,6 +45,8 @@ public class TaskServiceImpl implements TaskService {
             return ReturnMessageUtil.error(0, "必填项不可为空！");
         }
         task.setCreateTime(new Date());
+        task.setStatus("0");
+        task.setDelFlag("0");
         if(taskMapper.insert(task)==1){
             return  ReturnMessageUtil.sucess();
         }

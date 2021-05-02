@@ -5,6 +5,7 @@ import com.example.lfm.service.ISysDictDataService;
 import com.example.lfm.service.ISysDictTypeService;
 import com.example.lfm.utils.ReturnMessage;
 import com.example.lfm.utils.ReturnMessageUtil;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -74,5 +75,29 @@ public class SysDictDataController
     public ReturnMessage<Object> remove(@PathVariable Long[] dictCodes)
     {
         return ReturnMessageUtil.sucess(dictDataService.deleteDictDataByIds(dictCodes));
+    }
+
+    @ApiOperation("查看打印状态列表 ")
+    @GetMapping("/printOrderStatus")
+    public ReturnMessage<Object> printOrderStatus()  {
+        return ReturnMessageUtil.sucess(dictDataService.selectDictDataByType("sys_print_status"));
+    }
+
+    @ApiOperation("查看洗衣状态列表 ")
+    @GetMapping("/washingOrderStatus")
+    public ReturnMessage<Object> washingOrderStatus()  {
+        return ReturnMessageUtil.sucess(dictDataService.selectDictDataByType("sys_washing_status"));
+    }
+
+    @ApiOperation("查看取件状态列表 ")
+    @GetMapping("/pickUpOrderStatus")
+    public ReturnMessage<Object> pickUpOrderStatus()  {
+        return ReturnMessageUtil.sucess(dictDataService.selectDictDataByType("sys_pick_up_status"));
+    }
+
+    @ApiOperation("查看任务状态列表 ")
+    @GetMapping("/TaskOrderStatus")
+    public ReturnMessage<Object> TaskOrderStatus()  {
+        return ReturnMessageUtil.sucess(dictDataService.selectDictDataByType("sys_task_status"));
     }
 }

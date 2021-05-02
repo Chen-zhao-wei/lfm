@@ -58,4 +58,6 @@ public class WashController {
         return washService.cancelWashOrder(washingId);
     }
 
+
+
 }

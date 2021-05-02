@@ -154,8 +154,8 @@ public class WashServiceImpl implements WashService {
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
-        //       model.setBody();//加签过的订单详情
-        //       model.setSubject();
+        model.setBody("洗衣订单"+outTradeNo);//加签过的订单详情
+        model.setSubject("洗衣订单"+outTradeNo);
         model.setOutTradeNo(outTradeNo); //交易号 OutTradeNo只能为数字、英文或下划线；此外，OutTradeNo不可以重复，若重复则会出现系统繁忙等错误。
         model.setTimeoutExpress("30m");
         model.setTotalAmount(""+washing.getFee());

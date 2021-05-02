@@ -22,4 +22,5 @@ public interface WashService {
     Washing getwashById(Long washId);
 
     ReturnMessage<Object> updateByPrimaryKey(Washing washing);
+
 }

@@ -48,7 +48,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus("0");
         task.setDelFlag("0");
         if(taskMapper.insert(task)==1){
-            return  ReturnMessageUtil.sucess();
+            return  ReturnMessageUtil.sucess(task);
         }
         return ReturnMessageUtil.error(0,"发布失败！");
     }

@@ -71,7 +71,7 @@ public class WashServiceImpl implements WashService {
         fee=fee*washing.getClothesNumber();
         washing.setFee(fee);
         if(washingMapper.insert(washing)==1){
-            return ReturnMessageUtil.sucess();
+            return ReturnMessageUtil.sucess(washing);
         }
         return ReturnMessageUtil.error(0, "新建失败！");
     }

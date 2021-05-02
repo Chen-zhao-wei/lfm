@@ -49,7 +49,7 @@ public class PickUpServiceImpl implements PickUpService {
         pickUp.setStatus("0");
         pickUp.setDelFlag("0");
         if(pickUpMapper.insert(pickUp)==1){
-            return ReturnMessageUtil.sucess();
+            return ReturnMessageUtil.sucess(pickUp);
         }
         pickUp.setFee(1.0);
         return ReturnMessageUtil.error(0, "新建失败！");

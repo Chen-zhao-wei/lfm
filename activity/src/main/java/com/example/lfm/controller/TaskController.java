@@ -67,4 +67,14 @@ public class TaskController {
     public ReturnMessage<Object> confirm(Long taskId)  {
         return taskService.confirm(taskId);
     }
+
+    /**
+     * 获取订单信息
+     */
+    @ApiOperation("接单 ")
+    @PostMapping("/takeOrder/{taskId}")
+    public ReturnMessage<Object> takeOrder(@PathVariable() Long taskId, HttpServletRequest request) {
+        return taskService.takeOrder(taskId, request);
+    }
+
 }

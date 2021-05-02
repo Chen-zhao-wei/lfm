@@ -18,4 +18,8 @@ public interface WashService {
     ReturnMessage<Object> cancelWashOrder(Long washId) throws AlipayApiException;
 
     ReturnMessage<Object> confirm(Long washingId);
+
+    Washing getwashById(Long washId);
+
+    ReturnMessage<Object> updateByPrimaryKey(Washing washing);
 }

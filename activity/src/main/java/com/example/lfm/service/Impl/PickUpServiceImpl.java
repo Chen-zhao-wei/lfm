@@ -175,6 +175,16 @@ public class PickUpServiceImpl implements PickUpService {
         return ReturnMessageUtil.error(0,"收货失败！");
     }
 
+    @Override
+    public PickUp getPickUpById(Long pickUpId) {
+        return pickUpMapper.selectByPrimaryKey(pickUpId);
+    }
+
+    @Override
+    public ReturnMessage<Object> updateByPrimaryKey(PickUp pickUp) {
+        return ReturnMessageUtil.sucess(pickUpMapper.updateByPrimaryKey(pickUp));
+    }
+
     private ReturnMessage<Object> refund(Long pickUpId) throws AlipayApiException {
         //response.setContentType("text/html;charset=utf-8");
         //PrintWriter out = response.getWriter();

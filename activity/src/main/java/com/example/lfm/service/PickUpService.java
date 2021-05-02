@@ -2,6 +2,7 @@ package com.example.lfm.service;
 
 
 import com.alipay.api.AlipayApiException;
+import com.example.lfm.entity.ActPrint;
 import com.example.lfm.entity.PickUp;
 import com.example.lfm.utils.ReturnMessage;
 
@@ -19,4 +20,8 @@ public interface PickUpService {
     ReturnMessage<Object> cancelPickUpOrder(Long pickUpId) throws AlipayApiException;
 
     ReturnMessage<Object> confirm(Long pickUpId);
+
+    PickUp getPickUpById(Long pickUpId);
+
+    ReturnMessage<Object> updateByPrimaryKey(PickUp pickUp);
 }

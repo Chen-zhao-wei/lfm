@@ -1,11 +1,12 @@
 package com.example.lfm.controller;
 
 import com.alipay.api.AlipayApiException;
-import com.example.lfm.entity.ActPrint;
-import com.example.lfm.entity.DshOrder;
-import com.example.lfm.entity.File;
+import com.example.lfm.entity.*;
 import com.example.lfm.service.ActPrintService;
 import com.example.lfm.service.Impl.DelayService;
+import com.example.lfm.service.PickUpService;
+import com.example.lfm.service.TaskService;
+import com.example.lfm.service.WashService;
 import com.example.lfm.utils.*;
 import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
 import io.lettuce.core.resource.Delay;
@@ -35,6 +36,12 @@ public class PrintController {
     private DelayService delayService;
     @Autowired
     private FastDFSUtils fastDFSUtils;
+    @Autowired
+    private PickUpService pickUpService;
+    @Autowired
+    private WashService washService;
+    @Autowired
+    private TaskService taskService;
 
     @ApiOperation("新增打印")
     @PostMapping("/newprint")
@@ -108,6 +115,48 @@ public class PrintController {
                     actPrint.setPayTime(new Date());
                     printService.updateByPrimaryKey(actPrint);
                     DshOrder dshOrder = new DshOrder("R"+actPrint.getPrintId(),24 * 60 * 60 * 1000,4);
+                    delayService.add(dshOrder);
+                }
+            }
+            if (StringUtils.isNotEmpty(out_trade_no)&& "P".equals(out_trade_no.substring(0,1))){
+                Long puckUpId =  Long.parseLong(out_trade_no.substring(1));
+                System.out.println("----------------------------notify_url------------puckUpId------------" + puckUpId);
+                PickUp pickUp = pickUpService.getPickUpById(puckUpId);
+                System.out.println("----------------------------notify_url------------PickUp------------" + pickUp.getStatus());
+                if ("0".equals(pickUp.getStatus())){
+                    System.out.println("----------------------------notify_url----------------getStatus--------");
+                    pickUp.setStatus("1");
+                    pickUp.setPayTime(new Date());
+                    pickUpService.updateByPrimaryKey(pickUp);
+                    DshOrder dshOrder = new DshOrder("P"+pickUp.getPickUpId(),24 * 60 * 60 * 1000,4);
+                    delayService.add(dshOrder);
+                }
+            }
+            if (StringUtils.isNotEmpty(out_trade_no)&& "T".equals(out_trade_no.substring(0,1))){
+                Long taskId =  Long.parseLong(out_trade_no.substring(1));
+                System.out.println("----------------------------notify_url------------puckUpId------------" + taskId);
+                ActTask task = taskService.getTaskById(taskId);
+                System.out.println("----------------------------notify_url------------PickUp------------" + task.getStatus());
+                if ("0".equals(task.getStatus())){
+                    System.out.println("----------------------------notify_url----------------getStatus--------");
+                    task.setStatus("1");
+                    task.setPayTime(new Date());
+                    taskService.updateByPrimaryKey(task);
+                    DshOrder dshOrder = new DshOrder("P"+task.getTaskId(),24 * 60 * 60 * 1000,4);
+                    delayService.add(dshOrder);
+                }
+            }
+            if (StringUtils.isNotEmpty(out_trade_no)&& "W".equals(out_trade_no.substring(0,1))){
+                Long washId =  Long.parseLong(out_trade_no.substring(1));
+                System.out.println("----------------------------notify_url------------washId------------" + washId);
+                Washing washing = washService.getwashById(washId);
+                System.out.println("----------------------------notify_url------------washing------------" + washing.getStatus());
+                if ("0".equals(washing.getStatus())){
+                    System.out.println("----------------------------notify_url----------------getStatus--------");
+                    washing.setStatus("1");
+                    washing.setPayTime(new Date());
+                    washService.updateByPrimaryKey(washing);
+                    DshOrder dshOrder = new DshOrder("P"+washing.getWashingId(),24 * 60 * 60 * 1000,4);
                     delayService.add(dshOrder);
                 }
             }

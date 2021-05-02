@@ -210,6 +210,16 @@ public class WashServiceImpl implements WashService {
         return ReturnMessageUtil.error(0,"收货失败！");
     }
 
+    @Override
+    public Washing getwashById(Long washId) {
+        return washingMapper.selectByPrimaryKey(washId);
+    }
+
+    @Override
+    public ReturnMessage<Object> updateByPrimaryKey(Washing washing) {
+        return ReturnMessageUtil.sucess(washingMapper.updateByPrimaryKey(washing));
+    }
+
     private ReturnMessage<Object> refund(Long washId) throws AlipayApiException {
         //response.setContentType("text/html;charset=utf-8");
         //PrintWriter out = response.getWriter();

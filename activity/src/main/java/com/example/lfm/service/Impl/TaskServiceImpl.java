@@ -207,6 +207,39 @@ public class TaskServiceImpl implements TaskService {
         return ReturnMessageUtil.error(0,"收货失败！");
     }
 
+    @Override
+    public ReturnMessage<Object> takeOrder(Long taskId, HttpServletRequest request) {
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        if(StringUtils.isEmpty(studentId)||StringUtils.isEmpty(StringUtils.isEmpty(studentMapper.selectByPrimaryKey(studentId)))){
+            return ReturnMessageUtil.error(0, "学生不存在！");
+        }
+        ActTask task=taskMapper.selectByPrimaryKey(taskId);
+        if(taskId==0||StringUtils.isEmpty(task)){
+            return ReturnMessageUtil.error(0,"不存在该订单");
+        }
+        if(task.getStatus().equals("1")){
+            task.setStatus("2");
+            task.setStudentRealizeId(studentId);
+            taskMapper.updateByPrimaryKey(task);
+            return ReturnMessageUtil.sucess();
+        }
+        return ReturnMessageUtil.error(0,"接单失败！！");
+    }
+
+    @Override
+    public ActTask getTaskById(Long taskId) {
+        return taskMapper.selectByPrimaryKey(taskId);
+    }
+
+    @Override
+    public ReturnMessage<Object> updateByPrimaryKey(ActTask task) {
+        return ReturnMessageUtil.sucess(taskMapper.updateByPrimaryKey(task));
+    }
+
     private ReturnMessage<Object> refund(Long taskId) throws AlipayApiException {
         //response.setContentType("text/html;charset=utf-8");
         //PrintWriter out = response.getWriter();

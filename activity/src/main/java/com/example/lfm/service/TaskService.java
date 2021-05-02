@@ -21,4 +21,10 @@ public interface TaskService {
     ReturnMessage<Object> canceltaskOrder(Long taskId) throws AlipayApiException;
 
     ReturnMessage<Object> confirm(Long taskId);
+
+    ReturnMessage<Object> takeOrder(Long taskId, HttpServletRequest request);
+
+    ActTask getTaskById(Long taskId);
+
+    ReturnMessage<Object> updateByPrimaryKey(ActTask task);
 }

@@ -50,7 +50,7 @@
       update_by, update_time, remark, 
       del_flag)
     values (#{pickUpId,jdbcType=BIGINT}, #{studentId,jdbcType=BIGINT}, #{takeCode,jdbcType=VARCHAR}, 
-      #{takeName,jdbcType=VARCHAR}, #{takqeAddress,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{takeName,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR},
       #{status,jdbcType=CHAR}, #{takePhone,jdbcType=VARCHAR}, #{userPickId,jdbcType=BIGINT}, 
       #{studentRemark,jdbcType=VARCHAR}, #{addressId,jdbcType=BIGINT}, #{fee,jdbcType=DOUBLE}, 
       #{payTime,jdbcType=TIMESTAMP}, #{deliveryTime,jdbcType=TIMESTAMP}, #{finishTime,jdbcType=TIMESTAMP}, 

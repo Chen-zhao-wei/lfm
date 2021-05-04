@@ -48,6 +48,7 @@ public class PickUpServiceImpl implements PickUpService {
         pickUp.setCreateTime(new Date());
         pickUp.setStatus("0");
         pickUp.setDelFlag("0");
+        pickUp.setFee(5.0);
         if(pickUpMapper.insert(pickUp)==1){
             return ReturnMessageUtil.sucess(pickUp);
         }
@@ -155,7 +156,7 @@ public class PickUpServiceImpl implements PickUpService {
                 //如果已支付就执行退款操作
                 refund(pickUpId);
             }
-            pickUp.setStatus("5");//取消订单
+            pickUp.setStatus("4");//取消订单
             pickUp.setCancelTime(new Date());//取消时间
             pickUpMapper.updateByPrimaryKey(pickUp);
             return ReturnMessageUtil.sucess();

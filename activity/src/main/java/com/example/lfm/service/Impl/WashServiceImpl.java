@@ -190,7 +190,7 @@ public class WashServiceImpl implements WashService {
                 //如果已支付就执行退款操作
                 refund(washId);
             }
-            washing.setStatus("5");//取消订单
+            washing.setStatus("7");//取消订单
             washing.setCancelTime(new Date());//取消时间
             washingMapper.updateByPrimaryKey(washing);
             return ReturnMessageUtil.sucess();

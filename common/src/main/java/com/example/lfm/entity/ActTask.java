@@ -40,7 +40,24 @@ public class ActTask implements Serializable {
      *
      * @mbg.generated
      */
-    private Date deliveryTime;
+    private Date takeTime;
+    private Date checkTime;
+
+    public Date getTakeTime() {
+        return takeTime;
+    }
+
+    public void setTakeTime(Date takeTime) {
+        this.takeTime = takeTime;
+    }
+
+    public Date getCheckTime() {
+        return checkTime;
+    }
+
+    public void setCheckTime(Date checkTime) {
+        this.checkTime = checkTime;
+    }
 
     /**
      *
@@ -286,14 +303,6 @@ public class ActTask implements Serializable {
 
     public void setPayTime(Date payTime) {
         this.payTime = payTime;
-    }
-
-    public Date getDeliveryTime() {
-        return deliveryTime;
-    }
-
-    public void setDeliveryTime(Date deliveryTime) {
-        this.deliveryTime = deliveryTime;
     }
 
     public Date getFinishTime() {

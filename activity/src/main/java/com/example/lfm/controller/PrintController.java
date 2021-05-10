@@ -137,9 +137,9 @@ public class PrintController {
                 System.out.println("----------------------------notify_url------------puckUpId------------" + taskId);
                 ActTask task = taskService.getTaskById(taskId);
                 System.out.println("----------------------------notify_url------------PickUp------------" + task.getStatus());
-                if ("0".equals(task.getStatus())){
+                if ("3".equals(task.getStatus())){
                     System.out.println("----------------------------notify_url----------------getStatus--------");
-                    task.setStatus("1");
+                    task.setStatus("4");
                     task.setPayTime(new Date());
                     taskService.updateByPrimaryKey(task);
                     DshOrder dshOrder = new DshOrder("P"+task.getTaskId(),24 * 60 * 60 * 1000,4);

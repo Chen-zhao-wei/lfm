@@ -13,6 +13,7 @@ import com.example.lfm.dao.SysStudentMapper;
 import com.example.lfm.dao.SysUserMapper;
 import com.example.lfm.entity.ActPrint;
 import com.example.lfm.entity.PickUp;
+import com.example.lfm.entity.PickUpDetail;
 import com.example.lfm.entity.SysUser;
 import com.example.lfm.service.PickUpService;
 import com.example.lfm.utils.JwtTokenUtils;
@@ -95,13 +96,11 @@ public class PickUpServiceImpl implements PickUpService {
             return ReturnMessageUtil.error(0, "订单不存在！");
         }
         SysUser pickUser = userMapper.selectByPrimaryKey(pickUp.getUserPickId());
-        String status = pickUp.getStatus();
-        if (status.equals("1") || status.equals("0") || status.equals("4")) {
-            return ReturnMessageUtil.sucess(pickUp);
-        } else if (status.equals("2") || status.equals("3") ) {
-            return ReturnMessageUtil.sucess(pickUp + "" + pickUser);
-        }
-        return ReturnMessageUtil.error(0,"错误信息");
+        PickUpDetail pickUpDetail=new PickUpDetail();
+        pickUpDetail.setPickUp(pickUp);
+        pickUpDetail.setPickUser(pickUser);
+            return ReturnMessageUtil.sucess(pickUpDetail);
+
     }
 
     @Override

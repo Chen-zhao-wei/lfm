@@ -46,6 +46,7 @@ public class AddressServiceImpl implements AddressService {
                 addressMapper.updateByPrimaryKey(address1);
             }
         }
+        address.setDelFlag("0");
         if(addressMapper.insert(address)==1){
             return ReturnMessageUtil.sucess();
         }else   return ReturnMessageUtil.error(0,"添加失败！");

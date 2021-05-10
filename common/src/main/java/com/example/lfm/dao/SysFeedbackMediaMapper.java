@@ -1,7 +1,6 @@
 package com.example.lfm.dao;
 
 import com.example.lfm.entity.SysFeedbackMedia;
-
 import java.util.List;
 
 public interface SysFeedbackMediaMapper {
@@ -44,4 +43,6 @@ public interface SysFeedbackMediaMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(SysFeedbackMedia record);
+
+    String selectUrl(Long feedbackId);
 }

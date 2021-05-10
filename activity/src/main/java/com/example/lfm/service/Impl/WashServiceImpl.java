@@ -120,22 +120,13 @@ public class WashServiceImpl implements WashService {
         SysUser washinguser=userMapper.selectByPrimaryKey(washing.getUserWashingId());
         //派送员
         SysUser delivery=userMapper.selectByPrimaryKey(washing.getUserDeliveryId());
-        String status = washing.getStatus();
-        /**
-         * 0下单 1支付 2接单 3上门取件 4洗衣 5派送 6收货 7取消
-         */
-        if (status.equals("1") || status.equals("0") || status.equals("7")) {
-            return ReturnMessageUtil.sucess(washing);
-        } else if (status.equals("2") ) {
-            return ReturnMessageUtil.sucess(washing + "" + takeuser);
-        }else if(status.equals("3") ){
-            return ReturnMessageUtil.sucess(washing + "" + takeuser+""+fetchuser);
-        }else if( status.equals("4")){
-            return ReturnMessageUtil.sucess(washing + "" + takeuser+""+fetchuser+""+washinguser);
-        }else if( status.equals("6")|| status.equals("5")){
-            return ReturnMessageUtil.sucess(washing + "" + takeuser+""+fetchuser+""+washinguser+""+delivery);
-        }
-        return ReturnMessageUtil.error(0,"错误信息");
+        WashingDetail washingDetail=new WashingDetail();
+        washingDetail.setDelivery(delivery);
+        washingDetail.setFetchuser(fetchuser);
+        washingDetail.setTakeuser(takeuser);
+        washingDetail.setWashing(washing);
+        washingDetail.setWashinguser(washinguser);
+            return ReturnMessageUtil.sucess(washingDetail);
     }
 
     @Override

@@ -27,4 +27,10 @@ public interface TaskService {
     ActTask getTaskById(Long taskId);
 
     ReturnMessage<Object> updateByPrimaryKey(ActTask task);
+
+    ReturnMessage<Object> takeOrderList(HttpServletRequest request);
+
+    ReturnMessage<Object> getTakeTaskInfo(Long taskId);
+
+    ReturnMessage<Object> cancelTakeOrder(Long taskId);
 }

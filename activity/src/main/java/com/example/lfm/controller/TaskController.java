@@ -50,16 +50,31 @@ public class TaskController {
         return taskService.getOrderInfo(taskId);
     }
 
+    /**
+     * 获取可接单的订单信息
+     */
+    @ApiOperation("查看具体订单 ")
+    @PostMapping("/getTakeTaskInfo/{taskId}")
+    public ReturnMessage<Object> getTakeTaskInfo(@PathVariable() Long taskId) {
+        return taskService.getTakeTaskInfo(taskId);
+    }
+
     @ApiOperation("手机支付 ")
     @GetMapping("/pay")
     public ReturnMessage<Object> pay(Long taskId) {
         return taskService.pay(taskId);
     }
 
-    @ApiOperation("取消订单 ")
+    @ApiOperation("发布方取消订单 ")
     @GetMapping("/canceltaskOrder")
     public ReturnMessage<Object> canceltaskOrder(Long taskId) throws IOException, AlipayApiException {
         return taskService.canceltaskOrder(taskId);
+    }
+
+    @ApiOperation("接收方取消订单 ")
+    @GetMapping("/cancelTakeOrder")
+    public ReturnMessage<Object> cancelTakeOrder(Long taskId)  {
+        return taskService.cancelTakeOrder(taskId);
     }
 
     @ApiOperation("确认收货 ")
@@ -77,4 +92,12 @@ public class TaskController {
         return taskService.takeOrder(taskId, request);
     }
 
+    /**
+     * 获取所有可接的任务
+     */
+    @ApiOperation("可接的任务")
+    @GetMapping("/takeOrderList")
+    public ReturnMessage<Object> takeOrderList( HttpServletRequest request) {
+        return taskService.takeOrderList(request);
+    }
 }

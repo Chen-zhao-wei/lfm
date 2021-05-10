@@ -184,18 +184,11 @@ public class ActPrintServiceImpl implements ActPrintService {
         SysUser printuser=userMapper.selectByPrimaryKey(print.getUserPrintId());
         //派送员
         SysUser deliveruser=userMapper.selectByPrimaryKey(print.getUserDeliveryId());
-        String status=print.getStatus();
-        if(status.equals("1")||status.equals("0")){
-            logger.info("打印订单未接单=======================================");
-            return ReturnMessageUtil.sucess(print);
-        } else if(status.equals("3")){
-            logger.info("打印订单已接单");
-            return ReturnMessageUtil.sucess(print+""+printuser);
-        }else if (status.equals("4")){
-            logger.info("打印订单已派送");
-            return ReturnMessageUtil.sucess(print+""+printuser+""+deliveruser);
-        }
-        return ReturnMessageUtil.error(0,"查询失败");
+        PrintDetail printDetail=new PrintDetail();
+        printDetail.setPrint(print);
+        printDetail.setDeliveruser(deliveruser);
+        printDetail.setPrintuser(printuser);
+            return ReturnMessageUtil.sucess(printDetail);
     }
 
     @Override

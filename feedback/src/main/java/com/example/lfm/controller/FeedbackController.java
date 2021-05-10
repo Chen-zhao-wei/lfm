@@ -1,13 +1,13 @@
 package com.example.lfm.controller;
 
+import com.example.lfm.entity.FeedbackVo;
 import com.example.lfm.service.FeedbackService;
 import com.example.lfm.entity.F_FMedia;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.example.lfm.utils.ReturnMessage;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/feedback")
@@ -21,7 +21,12 @@ public class FeedbackController {
      * @return
      */
     @PostMapping("/AddFeedback")
-    public ReturnMessage<Object> AddFeedback(@RequestBody F_FMedia fMedia) {
-        return feedbackService.AddFeedback(fMedia);
+    public ReturnMessage<Object> AddFeedback(@RequestBody FeedbackVo feedbackVo, HttpServletRequest request) {
+        return feedbackService.AddFeedback(feedbackVo,request);
+    }
+
+    @GetMapping("/getFeedback")
+    public ReturnMessage<Object> getFeedback(HttpServletRequest request) {
+        return feedbackService.getFeedback(request);
     }
 }

@@ -9,6 +9,7 @@ import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.example.lfm.config.AlipayConfig;
 import com.example.lfm.dao.ActTaskMapper;
+import com.example.lfm.dao.SysAddressMapper;
 import com.example.lfm.dao.SysStudentMapper;
 import com.example.lfm.dao.SysUserMapper;
 import com.example.lfm.entity.*;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,6 +36,8 @@ public class TaskServiceImpl implements TaskService {
     private SysUserMapper userMapper;
     @Autowired
     private SysStudentMapper studentMapper;
+    @Autowired
+    private SysAddressMapper addressMapper;
     @Override
     public ReturnMessage<Object> newTask(ActTask task, HttpServletRequest request) {
         String token = request.getHeader("x-auth-token");
@@ -122,17 +127,11 @@ public class TaskServiceImpl implements TaskService {
         //审核员
         SysUser checkuser=userMapper.selectByPrimaryKey(task.getUserCheckId());
         String status = task.getStatus();
-        /**
-         * 0下单 1审核 2 接单 3完成 4支付 5取消
-         */
-        if (status.equals("0") || status.equals("5") ) {
-            return ReturnMessageUtil.sucess(task);
-        } else if (status.equals("1") ) {
-            return ReturnMessageUtil.sucess(task + "" + checkuser);
-        }else if(status.equals("2")|| status.equals("3")|| status.equals("4") ){
-            return ReturnMessageUtil.sucess(task + "" + takeuser+""+checkuser);
-        }
-        return ReturnMessageUtil.error(0,"错误信息");
+        TaskDetail taskDetail=new TaskDetail();
+        taskDetail.setCheckuser(checkuser);
+        taskDetail.setTakeuser(takeuser);
+        taskDetail.setTask(task);
+            return ReturnMessageUtil.sucess(taskDetail);
     }
 
     @Override
@@ -176,7 +175,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public ReturnMessage<Object> canceltaskOrder(Long taskId) throws AlipayApiException {
         if(taskId==0||StringUtils.isEmpty(taskMapper.selectByPrimaryKey(taskId))){
-            return ReturnMessageUtil.error(0,"打印订单id不能为空");
+            return ReturnMessageUtil.error(0,"订单id不能为空");
         }
         ActTask task=taskMapper.selectByPrimaryKey(taskId);
         if(StringUtils.isEmpty(task)){
@@ -226,6 +225,7 @@ public class TaskServiceImpl implements TaskService {
         if(task.getStatus().equals("1")){
             task.setStatus("2");
             task.setStudentRealizeId(studentId);
+            task.setTakeTime(new Date());
             taskMapper.updateByPrimaryKey(task);
             return ReturnMessageUtil.sucess();
         }
@@ -240,6 +240,71 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public ReturnMessage<Object> updateByPrimaryKey(ActTask task) {
         return ReturnMessageUtil.sucess(taskMapper.updateByPrimaryKey(task));
+    }
+
+    @Override
+    public ReturnMessage<Object> takeOrderList(HttpServletRequest request) {
+        List<TaskVo> taskVos=new ArrayList<TaskVo>();
+        String token = request.getHeader("x-auth-token");
+        if(token==null){
+            return ReturnMessageUtil.error(0, "获取token失败");
+        }
+        Long studentId= JwtTokenUtils.getStudentId(token);
+        SysStudent student=studentMapper.selectByPrimaryKey(studentId);
+        if(StringUtils.isEmpty(studentId)||StringUtils.isEmpty(student)){
+            return ReturnMessageUtil.error(0, "学生不存在！");
+        }
+        List<ActTask> tasks=taskMapper.selectTakeList("1",studentId);
+        if(StringUtils.isEmpty(tasks)){
+            return ReturnMessageUtil.error(0,"暂无可接任务");
+        }
+        for(ActTask task:tasks){
+            TaskVo taskVotemp=new TaskVo();
+            SysStudent studenttemp=studentMapper.selectByPrimaryKey(task.getStudentSendId());
+            taskVotemp.setTaskDescribe(task.getTaskDescribe());
+            taskVotemp.setCreateTime(task.getCreateTime());
+            taskVotemp.setFee(task.getFee());
+            taskVotemp.setStudentName(studenttemp.getStudentName());
+            taskVotemp.setTaskTitle(task.getTaskTitle());
+            taskVotemp.setTaskId(task.getTaskId());
+            taskVos.add(taskVotemp);
+        }
+        return ReturnMessageUtil.sucess(taskVos);
+    }
+
+    @Override
+    public ReturnMessage<Object> getTakeTaskInfo(Long taskId) {
+        ActTask task=taskMapper.selectByPrimaryKey(taskId);
+        if(StringUtils.isEmpty(task)){
+            return ReturnMessageUtil.error(0,"不存在该任务");
+        }
+        TaskVo taskVotemp=new TaskVo();
+        SysStudent studenttemp=studentMapper.selectByPrimaryKey(task.getStudentSendId());
+        SysAddress address=addressMapper.selectByPrimaryKey(task.getAddressId());
+        taskVotemp.setTaskDescribe(task.getTaskDescribe());
+        taskVotemp.setCreateTime(task.getCreateTime());
+        taskVotemp.setFee(task.getFee());
+        taskVotemp.setStudentName(studenttemp.getStudentName());
+        taskVotemp.setTaskTitle(task.getTaskTitle());
+        taskVotemp.setTaskId(task.getTaskId());
+        taskVotemp.setAddress(address.getAddress());
+        return ReturnMessageUtil.sucess(taskVotemp);
+    }
+
+    @Override
+    public ReturnMessage<Object> cancelTakeOrder(Long taskId) {
+        if(taskId==0||StringUtils.isEmpty(taskMapper.selectByPrimaryKey(taskId))){
+            return ReturnMessageUtil.error(0,"订单id不能为空");
+        }
+        ActTask task=taskMapper.selectByPrimaryKey(taskId);
+        if(StringUtils.isEmpty(task)){
+            return ReturnMessageUtil.error(0,"不存在该订单");
+        }
+        long temp=00000;
+        task.setStatus("1");//取消订单，恢复可接受状态
+            task.setStudentRealizeId(temp);//去掉接单人
+            taskMapper.updateByPrimaryKey(task);
+            return ReturnMessageUtil.sucess();
     }
 
     private ReturnMessage<Object> refund(Long taskId) throws AlipayApiException {

@@ -51,4 +51,6 @@ public interface ActTaskMapper {
     List<ActTask> selectByTakeTaskId(Long studentRealizeId, String delFlag);
 
     List<ActTask> selectByTIdStatus(Long studentRealizeId, String status, String delFlag);
+
+    List<ActTask> selectTakeList(String status,Long studentSendId);
 }
